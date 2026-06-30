@@ -1,0 +1,238 @@
+<div class="public-booking">
+  @if (loading()) {
+  <div class="center">{{ "common.loading" | t }}</div>
+  } @else if (error()) {
+  <div class="center error-panel">
+    <h2>{{ errorMessage() }}</h2>
+    <button type="button" class="btn-secondary" (click)="reloadLink()">
+      {{ "common.retry" | t }}
+    </button>
+  </div>
+  } @else {
+  <main class="booking-shell">
+    <header class="booking-header">
+      <div class="booking-identity">
+        <div class="avatar group-avatar" aria-hidden="true">
+          @if (group()) { @if (showGroupAvatar()) {
+          <img
+            [src]="group()?.avatar"
+            [alt]="group()?.name || ('nav.groups' | t)"
+            (error)="onGroupAvatarLoadError()"
+          />
+          } @else {
+          <svg-icon name="users"></svg-icon>
+          } } @else if (showHostAvatar()) {
+          <img
+            [src]="host()?.avatar"
+            [alt]="host()?.name || host()?.email || 'avatar'"
+            (error)="onHostAvatarLoadError()"
+          />
+          } @else {
+          <span
+            >{{ (host()?.name || host()?.email || '?')[0].toUpperCase() }}</span
+          >
+          }
+        </div>
+        <div class="booking-heading">
+          @if (group()) {
+          <p class="eyebrow">{{ group()?.name }}</p>
+          } @else {
+          <p class="eyebrow">
+            {{ host()?.name || host()?.email || ("common.user" | t) }}
+          </p>
+          }
+          <h1>{{ linkTitle() }}</h1>
+          @if (linkDesc()) {
+          <p class="desc">{{ linkDesc() }}</p>
+          }
+        </div>
+      </div>
+      <div class="booking-meta">
+        @if (group()) {
+        <span>
+          {{ "groups.members" | t }}:
+          <strong>{{ group()?.members?.length || 0 }}</strong>
+        </span>
+        }
+        <span>
+          {{ "book.duration" | t }}:
+          <strong>{{ duration() }} {{ "duration.minutes_suffix" | t }}</strong>
+        </span>
+      </div>
+    </header>
+
+    <section class="booking-body">
+      <section class="date-panel" aria-labelledby="public-booking-date-title">
+        <div class="section-heading">
+          <span class="step-number">1</span>
+          <div>
+            <h2 id="public-booking-date-title">
+              {{ "public_booking.when_to_meet" | t }}
+            </h2>
+            <p class="panel-copy">{{ "public_booking.date_panel_hint" | t }}</p>
+          </div>
+        </div>
+
+        <div class="date-tools">
+          <div class="date-row">
+            <label class="sr-only" for="public-booking-date">
+              {{ "book.date" | t }}
+            </label>
+            <ccs-date-input
+              class="public-booking-date"
+              [label]="'book.date' | t"
+              [inputId]="'public-booking-date'"
+              [name]="'public-booking-date'"
+              [formControl]="dateControl"
+              [minDate]="minDate"
+              [availableDates]="availableDates()"
+              [openLabel]="'book.open_calendar' | t"
+            ></ccs-date-input>
+          </div>
+          <div
+            class="calendar-legend"
+            tabindex="0"
+            [ccsTooltip]="'public_booking.available_date_tooltip' | t"
+          >
+            <span class="legend-dot"></span>
+            <span>{{ "public_booking.available_date_legend" | t }}</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="booking-grid">
+        <section
+          class="options-panel"
+          aria-labelledby="public-booking-options-title"
+        >
+          <div class="section-heading section-heading--compact">
+            <span class="step-number">2</span>
+            <div>
+              <h3 id="public-booking-options-title">
+                {{ "public_booking.free_options" | t }}
+              </h3>
+              <p class="panel-copy">{{ "public_booking.options_hint" | t }}</p>
+            </div>
+          </div>
+          @if (finding()) {
+          <p class="muted">{{ "public_booking.checking_schedule" | t }}</p>
+          } @else if (slots().length > 0) {
+          <div class="slots-grid">
+            @for (slot of slots(); track $index) {
+            <button
+              class="slot-btn"
+              [class.selected]="selectedSlot()?.start === slot.start"
+              (click)="selectedSlot.set(slot)"
+            >
+              {{ slot.start }} - {{ slot.end }}
+            </button>
+            }
+          </div>
+          } @else {
+          <p class="muted">{{ "public_booking.no_free_time" | t }}</p>
+          }
+        </section>
+
+        <form class="guest-form" [formGroup]="guestForm" (ngSubmit)="book()">
+          <div class="section-heading section-heading--compact">
+            <span class="step-number">3</span>
+            <div>
+              <h3>{{ "public_booking.your_details" | t }}</h3>
+              <p class="panel-copy">{{ "public_booking.details_hint" | t }}</p>
+            </div>
+          </div>
+          @if (!selectedSlot()) {
+          <p class="form-hint">{{ "public_booking.choose_slot_hint" | t }}</p>
+          }
+          <label class="sr-only" for="public-booking-guest-name">
+            {{ "public_booking.name_placeholder" | t }}
+          </label>
+          <input
+            id="public-booking-guest-name"
+            name="public-booking-guest-name"
+            type="text"
+            formControlName="guestName"
+            [ccsTooltip]="'public_booking.name_tooltip' | t"
+            [attr.aria-describedby]="'public-booking-guest-name-error'"
+            [attr.aria-invalid]="
+              guestForm.controls.guestName.invalid &&
+              guestForm.controls.guestName.touched
+            "
+            [placeholder]="'public_booking.name_placeholder' | t"
+          />
+          @if (guestForm.controls.guestName.invalid &&
+          guestForm.controls.guestName.touched) {
+          <p id="public-booking-guest-name-error" class="field-error">
+            {{ "public_booking.name_required" | t }}
+          </p>
+          }
+          <label class="sr-only" for="public-booking-guest-email">
+            {{ "public_booking.email_placeholder" | t }}
+          </label>
+          <input
+            id="public-booking-guest-email"
+            name="public-booking-guest-email"
+            type="email"
+            formControlName="guestEmail"
+            [ccsTooltip]="'public_booking.email_tooltip' | t"
+            [attr.aria-describedby]="'public-booking-guest-email-error'"
+            [attr.aria-invalid]="
+              guestForm.controls.guestEmail.invalid &&
+              guestForm.controls.guestEmail.touched
+            "
+            [placeholder]="'public_booking.email_placeholder' | t"
+          />
+          @if (guestForm.controls.guestEmail.invalid &&
+          guestForm.controls.guestEmail.touched) {
+          <p id="public-booking-guest-email-error" class="field-error">
+            @if (guestForm.controls.guestEmail.hasError("email")) { {{
+            "public_booking.email_invalid" | t }} } @else { {{
+            "public_booking.email_required" | t }} }
+          </p>
+          }
+          <label class="sr-only" for="public-booking-meeting-title">
+            {{ "public_booking.title_placeholder" | t }}
+          </label>
+          <input
+            id="public-booking-meeting-title"
+            name="public-booking-meeting-title"
+            type="text"
+            formControlName="meetingTitle"
+            [attr.aria-describedby]="'public-booking-meeting-title-error'"
+            [attr.aria-invalid]="
+              guestForm.controls.meetingTitle.invalid &&
+              guestForm.controls.meetingTitle.touched
+            "
+            [placeholder]="'public_booking.title_placeholder' | t"
+          />
+          @if (guestForm.controls.meetingTitle.invalid &&
+          guestForm.controls.meetingTitle.touched) {
+          <p id="public-booking-meeting-title-error" class="field-error">
+            {{ "public_booking.title_required" | t }}
+          </p>
+          }
+          <button
+            type="submit"
+            class="btn-book"
+            [disabled]="booking() || guestForm.invalid || !selectedSlot()"
+          >
+            {{ (booking() ? "common.loading_short" :
+            "public_booking.confirm_meeting") | t }}
+          </button>
+        </form>
+      </div>
+      @if (success()) {
+      <div class="success-box">
+        <h3>{{ "public_booking.booked" | t }}</h3>
+        @if (videoUrl()) {
+        <p>
+          {{ "public_booking.video_link" | t }}:
+          <a [href]="videoUrl()" target="_blank">{{ videoUrl() }}</a>
+        </p>
+        }
+      </div>
+      }
+    </section>
+  </main>
+  }
+</div>

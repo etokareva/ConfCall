@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1782547253984,
+      "tag": "0000_drop_legacy_calendar_integrations",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782550015726,
+      "tag": "0001_create_group_invitations",
+      "breakpoints": true
+    }
+  ]
+}

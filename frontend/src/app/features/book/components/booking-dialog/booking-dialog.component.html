@@ -1,0 +1,63 @@
+<form class="dialog-shell" [formGroup]="form" (ngSubmit)="submit()">
+  <ccs-modal-shell
+    title="book.dialog.title"
+    [subtitle]="data.dateLabel + ' | ' + data.start + ' - ' + data.end"
+    (close)="close()"
+  >
+    <div class="dialog-summary">
+      <span class="summary-item">
+        <small>{{ "book.step.group.title" | t }}</small>
+        <strong>{{ data.groupName }}</strong>
+      </span>
+      <span class="summary-item">
+        <small>{{ "book.step.participants.title" | t }}</small>
+        <strong>{{ data.participantsLabel }}</strong>
+      </span>
+      <span class="summary-item">
+        <small>{{ "book.intersection_date" | t }}</small>
+        <strong>{{ data.dateLabel }}</strong>
+      </span>
+      <span class="summary-item">
+        <small>{{ "settings.meeting_duration" | t }}</small>
+        <strong
+          >{{ data.start }} - {{ data.end }} · {{ data.durationLabel }}</strong
+        >
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="booking-dialog-title">{{
+        "book.dialog.meeting_title" | t
+      }}</label>
+      <input
+        id="booking-dialog-title"
+        name="booking-dialog-title"
+        class="control-input"
+        type="text"
+        formControlName="title"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="booking-dialog-description">{{
+        "book.dialog.description" | t
+      }}</label>
+      <textarea
+        id="booking-dialog-description"
+        name="booking-dialog-description"
+        class="control-input"
+        formControlName="description"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div modalFooter class="dialog-actions">
+      <button class="btn-secondary" type="button" (click)="close()">
+        {{ "common.cancel" | t }}
+      </button>
+      <button class="btn-primary" type="submit" [disabled]="form.invalid">
+        {{ "common.confirm" | t }}
+      </button>
+    </div>
+  </ccs-modal-shell>
+</form>

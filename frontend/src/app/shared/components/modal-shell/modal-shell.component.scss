@@ -1,0 +1,117 @@
+.modal-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-modal);
+  color: var(--color-text);
+}
+
+.modal-shell-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
+.modal-shell-title {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    color: var(--color-text-strong);
+    font-size: var(--font-size-2xl);
+    line-height: 1.15;
+  }
+}
+
+.modal-shell-eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.modal-shell-subtitle {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.modal-shell-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+.modal-shell-close {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-round);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1.35rem;
+  line-height: 1;
+
+  span {
+    display: block;
+    line-height: 1;
+    transform: translateY(-0.04em);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+.modal-shell-body {
+  min-width: 0;
+}
+
+.modal-shell-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+
+  &:empty {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-shell {
+    padding: var(--space-4);
+  }
+
+  .modal-shell-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .modal-shell-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .modal-shell-footer {
+    flex-direction: column;
+  }
+}

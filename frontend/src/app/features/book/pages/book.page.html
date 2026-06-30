@@ -1,0 +1,635 @@
+<ccs-navbar></ccs-navbar>
+<div class="page-container">
+  <div class="book-page">
+    <h1 class="sr-only">{{ "book.title" | t }}</h1>
+
+    <section class="section workspace-section">
+      <div class="section-heading">
+        <div>
+          <h2>{{ "book.title" | t }}</h2>
+          <p class="desc-text">{{ "book.subtitle" | t }}</p>
+        </div>
+      </div>
+
+      <div class="workspace-layout book-layout">
+        <section class="workspace-section">
+          <div class="nav-card step-card">
+            <div class="nav-card-header">
+              <h3>{{ "book.steps" | t }}</h3>
+              <div class="step-header-actions">
+                <span class="counter"
+                  >{{ activeStepNumber() }} / {{ bookSteps.length }}</span
+                >
+                <button
+                  type="button"
+                  class="step-next-action"
+                  [disabled]="!canGoNext()"
+                  [ccsTooltip]="'book.next_step' | t"
+                  [attr.aria-label]="'book.next_step' | t"
+                  (click)="goToNextStep()"
+                >
+                  <svg-icon name="chevron-right"></svg-icon>
+                </button>
+              </div>
+            </div>
+            <div
+              class="step-list"
+              role="list"
+              [attr.aria-label]="'book.steps' | t"
+            >
+              @for (step of bookSteps; track step.id; let index = $index) {
+              <button
+                type="button"
+                class="step-row"
+                role="listitem"
+                [ngClass]="stepState(step.id)"
+                [disabled]="!isStepAvailable(step.id)"
+                [attr.aria-current]="
+                  stepState(step.id) === 'active' ? 'step' : null
+                "
+                [ccsTooltip]="step.description | t"
+                (click)="goToStep(step.id)"
+              >
+                <span class="step-index">
+                  @if (stepState(step.id) === "done") { ✓ } @else { {{ index + 1
+                  }} }
+                </span>
+                <span class="step-copy">
+                  <strong>{{ step.title | t }}</strong>
+                  <small>{{ stepCaption(step.id) }}</small>
+                </span>
+              </button>
+              }
+            </div>
+          </div>
+
+          @if (activeStep() === 'group' || activeStep() === 'participants') {
+          <div class="nav-card flow-card selection-card">
+            <div class="nav-card-header">
+              <h3>
+                {{ (activeStep() === 'group' ? "book.step.group.title" :
+                "book.step.participants.title") | t }}
+              </h3>
+              @if (activeStep() === 'participants' && selectedIds().length > 0)
+              {
+              <span class="counter"
+                >{{ selectedIds().length }} {{ "book.selected" | t }}</span
+              >
+              }
+            </div>
+            @if (activeStep() === 'participants' && selectedGroup()) {
+            <div class="flow-summary">
+              <span>
+                <small>{{ "book.step.group.title" | t }}</small>
+                <strong>{{ selectedGroup()?.name }}</strong>
+              </span>
+            </div>
+            } @if (activeStep() === 'group') { @if (groupsError()) {
+            <div class="state-card error-state compact-state">
+              <strong>{{ "book.groups_unavailable" | t }}</strong>
+              <span>{{ groupsError() }}</span>
+            </div>
+            } @else if (groupsList().length > 0) {
+            <div class="group-picker">
+              <label
+                class="sr-only"
+                for="book-group-search"
+                [ccsTooltip]="'book.group_tooltip' | t"
+                tabindex="0"
+                >{{ "book.group" | t }}</label
+              >
+              <input
+                id="book-group-search"
+                name="book-group-search"
+                type="search"
+                [placeholder]="'book.find_group' | t"
+                [value]="groupSearch()"
+                (input)="onGroupSearch($event)"
+                [ccsTooltip]="'book.group_search_tooltip' | t"
+              />
+              @if (groupItems().length > 0) {
+              <ccs-selectable-card-grid
+                [items]="groupItems()"
+                [selectedIds]="selectedGroupIds()"
+                selectionMode="single"
+                [ariaLabel]="'book.group' | t"
+                [selectLabel]="'a11y.select_group' | t"
+                [selectedLabel]="'a11y.selected_group' | t"
+                (toggle)="selectGroup($event)"
+              ></ccs-selectable-card-grid>
+              } @else {
+              <div class="state-card empty-state inline-state">
+                <strong>{{ "book.group_not_found" | t }}</strong>
+                <span>{{ "book.group_not_found_hint" | t }}</span>
+              </div>
+              }
+            </div>
+            } @else { @if (groupsLoading()) {
+            <div class="state-card loading-state">
+              <strong>{{ "groups.loading" | t }}</strong>
+              <span>{{ "book.loading_groups_hint" | t }}</span>
+            </div>
+            } @else {
+            <div class="state-card empty-state">
+              <strong>{{ "groups.empty_title" | t }}</strong>
+              <span>{{ "book.no_groups_hint" | t }}</span>
+            </div>
+            } } } @else {
+            <div class="participant-filter">
+              <label
+                class="sr-only"
+                for="book-participant-search"
+                [ccsTooltip]="'book.participants_tooltip' | t"
+                tabindex="0"
+                >{{ "book.participants" | t }} {{ selectedGroup()?.name
+                }}</label
+              >
+              <input
+                id="book-participant-search"
+                name="book-participant-search"
+                type="search"
+                [placeholder]="'book.find_participant' | t"
+                [value]="participantSearch()"
+                (input)="onParticipantSearch($event)"
+                [ccsTooltip]="'book.participant_search_tooltip' | t"
+              />
+              <div class="participant-toolbar">
+                @if (filteredUsers().length > 0) {
+                <button
+                  type="button"
+                  class="participant-bulk-action"
+                  (click)="toggleVisibleUsers()"
+                  [ccsTooltip]="
+                    allVisibleUsersSelected()
+                      ? ('book.clear_selection' | t)
+                      : ('book.select_all_participants' | t)
+                  "
+                >
+                  {{ allVisibleUsersSelected() ? ("book.clear_selection" | t) :
+                  ("book.select_all_participants" | t) }}
+                </button>
+                }
+              </div>
+            </div>
+
+            @if (groupUsersLoading()) {
+            <div
+              class="state-card loading-state"
+              role="status"
+              aria-live="polite"
+            >
+              <strong>{{ "book.loading_participants" | t }}</strong>
+              <span>{{ "book.loading_participants_hint" | t }}</span>
+            </div>
+            } @else if (groupUsersError()) {
+            <div class="state-card error-state" role="alert">
+              <strong>{{ "book.group_members_unavailable" | t }}</strong>
+              <span>{{ groupUsersError() }}</span>
+            </div>
+            } @else {
+            <ccs-user-select
+              [users]="filteredUsers()"
+              [selectedIds]="selectedIds()"
+              (toggle)="toggleUser($event)"
+            ></ccs-user-select>
+            @if (users().length > 0 && filteredUsers().length === 0) {
+            <div class="state-card empty-state">
+              <strong>{{ "book.participant_not_found" | t }}</strong>
+              <span>{{ "book.participant_not_found_hint" | t }}</span>
+            </div>
+            } @else if (users().length === 0) {
+            <div class="state-card empty-state">
+              <strong>{{ "book.no_group_members" | t }}</strong>
+              <span>{{ "book.no_group_members_hint" | t }}</span>
+            </div>
+            } } }
+          </div>
+          }
+        </section>
+
+        <div class="workspace-main">
+          @if (activeStep() === 'params') {
+          <section class="nav-card flow-card search-panel">
+            <div class="nav-card-header">
+              <h3>{{ "book.step.params.title" | t }}</h3>
+              <button
+                type="button"
+                class="btn-secondary create-public-link-action"
+                [disabled]="creatingLink() || !hasIntersections()"
+                [ccsTooltip]="
+                  hasIntersections()
+                    ? ('groups.booking_link_create_tooltip' | t)
+                    : ('book.public_link_unavailable_message' | t)
+                "
+                (click)="openPublicBookingLinkDialog()"
+              >
+                <svg-icon name="link"></svg-icon>
+                <span>{{ "settings.create_link" | t }}</span>
+              </button>
+            </div>
+            <div class="flow-summary">
+              <span>
+                <small>{{ "book.step.group.title" | t }}</small>
+                <strong>{{ selectedGroup()?.name }}</strong>
+              </span>
+              <span>
+                <small>{{ "book.step.participants.title" | t }}</small>
+                <strong>{{ selectedParticipantsSummary() }}</strong>
+              </span>
+            </div>
+            <div class="form-grid time-search-grid">
+              <div class="form-row form-row--mode">
+                <div class="form-row-head">
+                  <div
+                    class="mode-switch"
+                    role="tablist"
+                    [attr.aria-label]="'book.date_mode' | t"
+                  >
+                    <button
+                      type="button"
+                      class="mode-switch-button"
+                      [class.active]="searchMode() === 'single'"
+                      [attr.aria-pressed]="searchMode() === 'single'"
+                      [ccsTooltip]="'book.date_single_hint' | t"
+                      (click)="setSearchMode('single')"
+                    >
+                      {{ "book.date_mode_single" | t }}
+                    </button>
+                    <button
+                      type="button"
+                      class="mode-switch-button"
+                      [class.active]="searchMode() === 'range'"
+                      [attr.aria-pressed]="searchMode() === 'range'"
+                      [ccsTooltip]="'book.date_range_hint' | t"
+                      (click)="setSearchMode('range')"
+                    >
+                      {{ "book.date_mode_range" | t }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row form-row--date">
+                <div
+                  class="date-range-grid"
+                  [class.range-mode]="searchMode() === 'range'"
+                >
+                  <div class="field-group">
+                    <label class="sr-only" for="book-date-start"
+                      >{{ "book.date_from" | t }}</label
+                    >
+                    @if (searchMode() === 'single') {
+                    <ccs-date-input
+                      [label]="'book.date' | t"
+                      [inputId]="'book-date-start'"
+                      [name]="'book-date-start'"
+                      [formControl]="singleDateControl"
+                      [minDate]="minDate"
+                      [availableDates]="availableDates()"
+                      [describedBy]="dateError() ? 'book-date-error' : ''"
+                      [openLabel]="'book.open_calendar' | t"
+                    ></ccs-date-input>
+                    } @else {
+                    <ccs-date-input
+                      [label]="'book.date_from' | t"
+                      [inputId]="'book-date-start'"
+                      [name]="'book-date-start'"
+                      [formControl]="rangeStartControl"
+                      [minDate]="minDate"
+                      [availableDates]="availableDates()"
+                      [describedBy]="dateError() ? 'book-date-error' : ''"
+                      [openLabel]="'book.open_calendar' | t"
+                    ></ccs-date-input>
+                    }
+                  </div>
+                  <div
+                    class="field-group"
+                    [class.is-hidden]="searchMode() === 'single'"
+                  >
+                    <label class="sr-only" for="book-date-end"
+                      >{{ "book.date_to" | t }}</label
+                    >
+                    <ccs-date-input
+                      [label]="'book.date_to' | t"
+                      [inputId]="'book-date-end'"
+                      [name]="'book-date-end'"
+                      [formControl]="rangeEndControl"
+                      [minDate]="minDate"
+                      [availableDates]="availableDates()"
+                      [describedBy]="dateError() ? 'book-date-error' : ''"
+                      [openLabel]="'book.open_calendar' | t"
+                    ></ccs-date-input>
+                  </div>
+                </div>
+                @if (dateError()) {
+                <span id="book-date-error" class="field-error" role="alert"
+                  >{{ dateError() }}</span
+                >
+                } @else if (availableDates().length > 0) {
+                <div
+                  class="calendar-legend"
+                  tabindex="0"
+                  [ccsTooltip]="'book.available_date_tooltip' | t"
+                >
+                  <span class="legend-dot" aria-hidden="true"></span>
+                  <span>{{ "book.available_date_legend" | t }}</span>
+                </div>
+                }
+              </div>
+
+              <div class="form-row form-row--duration">
+                <label id="book-duration-label"
+                  >{{ "book.duration" | t }}</label
+                >
+                <div class="duration-select">
+                  <button
+                    #durationButton
+                    #durationTrigger="cdkOverlayOrigin"
+                    cdkOverlayOrigin
+                    class="select-trigger"
+                    type="button"
+                    aria-haspopup="listbox"
+                    [attr.aria-labelledby]="'book-duration-label'"
+                    [attr.aria-expanded]="durationOpen()"
+                    [class.open]="durationOpen()"
+                    (click)="toggleDuration()"
+                  >
+                    <span class="select-label">{{ durationLabel() }}</span>
+                    <svg-icon
+                      class="select-chevron"
+                      name="chevron-down"
+                    ></svg-icon>
+                  </button>
+                  <ng-template
+                    cdkConnectedOverlay
+                    [cdkConnectedOverlayOrigin]="durationTrigger"
+                    [cdkConnectedOverlayOpen]="durationOpen()"
+                    [cdkConnectedOverlayPositions]="durationOverlayPositions"
+                    [cdkConnectedOverlayHasBackdrop]="true"
+                    [cdkConnectedOverlayWidth]="durationMenuWidth()"
+                    [cdkConnectedOverlayPush]="true"
+                    [cdkConnectedOverlayFlexibleDimensions]="true"
+                    cdkConnectedOverlayBackdropClass="select-overlay-backdrop"
+                    (backdropClick)="closeDuration()"
+                  >
+                    <div
+                      class="select-menu"
+                      role="listbox"
+                      [attr.aria-label]="'book.duration' | t"
+                    >
+                      @for (option of localizedDurationOptions(); track
+                      option.value ?? option.label) {
+                      <button
+                        type="button"
+                        role="option"
+                        [attr.aria-selected]="option.value === duration()"
+                        [class.selected]="option.value === duration()"
+                        (click)="selectDuration(option.value)"
+                      >
+                        {{ option.label }}
+                      </button>
+                      }
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </section>
+          } @if (activeStep() === 'params' && finding()) {
+          <div
+            class="state-card loading-state"
+            role="status"
+            aria-live="polite"
+          >
+            <strong>{{ "book.searching_slots" | t }}</strong>
+            <span>{{ "book.searching_slots_hint" | t }}</span>
+          </div>
+          } @if (activeStep() === 'params' && error()) {
+          <div class="state-card error-state" role="alert">
+            <strong>{{ "book.find_failed" | t }}</strong>
+            <span>{{ error() }}</span>
+          </div>
+          } @if (activeStep() === 'params' && availableRanges().length > 0) {
+          <section class="results ranges-results">
+            <div class="section-header">
+              <div>
+                <h3>{{ rangesTitle() }}</h3>
+                <p>{{ rangesDescription() }}</p>
+              </div>
+              <span class="date-chip">
+                {{ "book.intersection_date" | t }}: {{ selectedPeriodLabel() }}
+              </span>
+            </div>
+            <div class="day-rail">
+              <span class="day-rail-marker" aria-hidden="true"></span>
+              <ol class="ranges-list">
+                @for (range of sortedAvailableRanges(); track range.start +
+                range.end) {
+                <li>
+                  <button
+                    type="button"
+                    class="range-card"
+                    [ccsTooltip]="'book.book_slot_tooltip' | t"
+                    [attr.aria-label]="
+                      ('book.book_slot' | t) + ': ' + range.start + ' - ' + range.end
+                    "
+                    (click)="openBooking(range, selectedDate())"
+                  >
+                    <span class="range-time"
+                      >{{ range.start }} - {{ range.end }}</span
+                    >
+                    <span class="range-meta">
+                      {{ "book.intersection_date" | t }} {{
+                      selectedPeriodLabel() }}
+                    </span>
+                    <span class="range-duration"
+                      >{{ rangeDurationLabel(range) }} {{ "book.shared_time" | t
+                      }}</span
+                    >
+                    <span class="range-action">
+                      <svg-icon name="video"></svg-icon>
+                      <span>{{ "book.book_slot" | t }}</span>
+                    </span>
+                  </button>
+                </li>
+                }
+              </ol>
+            </div>
+          </section>
+          } @else if (activeStep() === 'params' && slots().length > 0) {
+          <section class="results">
+            <div class="section-header">
+              <div>
+                <h3>{{ resultTitle() }}</h3>
+              </div>
+              <span class="date-chip">
+                {{ "book.intersection_date" | t }}: {{ selectedPeriodLabel() }}
+              </span>
+            </div>
+            <div class="day-rail">
+              <span class="day-rail-marker" aria-hidden="true"></span>
+              <ol
+                class="ranges-list"
+                role="group"
+                [attr.aria-label]="resultTitle()"
+              >
+                @for (slot of sortedSlots(); track slot.start + slot.end) {
+                <li>
+                  <button
+                    type="button"
+                    class="range-card"
+                    [ccsTooltip]="'book.book_slot_tooltip' | t"
+                    [attr.aria-label]="
+                      ('book.book_slot' | t) + ': ' + slot.start + ' - ' + slot.end
+                    "
+                    (click)="openBooking(slot, selectedDate())"
+                  >
+                    <span class="range-time"
+                      >{{ slot.start }} - {{ slot.end }}</span
+                    >
+                    <span class="range-meta">
+                      {{ "book.intersection_date" | t }} {{
+                      selectedPeriodLabel() }}
+                    </span>
+                    <span class="range-duration"
+                      >{{ durationLabel() }} {{ "book.shared_time" | t }}</span
+                    >
+                    <span class="range-action">
+                      <svg-icon name="video"></svg-icon>
+                      <span>{{ "book.book_slot" | t }}</span>
+                    </span>
+                  </button>
+                </li>
+                }
+              </ol>
+            </div>
+          </section>
+          } @else if (activeStep() === 'params' && rangeResults().length > 0) {
+          <section class="results range-results">
+            <div class="section-header">
+              <div>
+                <h3>{{ rangeResultsTitle() }}</h3>
+                <p>{{ rangeResultsDescription() }}</p>
+              </div>
+              <span class="date-chip"> {{ selectedPeriodLabel() }} </span>
+            </div>
+
+            <div class="range-results-list">
+              @for (day of rangeResults(); track day.date) {
+              <article class="range-day-card">
+                <div class="section-header range-day-header">
+                  <div>
+                    <h4>{{ selectedDateLabel(day.date) }}</h4>
+                    <p>{{ rangeDaySummaryLabel(day) }}</p>
+                  </div>
+                  <span class="date-chip">
+                    {{ "book.intersection_date" | t }}: {{
+                    selectedDateLabel(day.date) }}
+                  </span>
+                </div>
+
+                @if (day.messageKey) {
+                <div class="state-card empty-state compact-state">
+                  <strong
+                    >{{ noAvailabilityMessage(day.unavailableUserIds) }}</strong
+                  >
+                </div>
+                } @else if (day.availableRanges.length > 0 && duration() ===
+                null) {
+                <div class="day-rail">
+                  <span class="day-rail-marker" aria-hidden="true"></span>
+                  <ol class="ranges-list">
+                    @for (range of day.availableRanges; track range.start +
+                    range.end) {
+                    <li>
+                      <button
+                        type="button"
+                        class="range-card"
+                        [ccsTooltip]="'book.book_slot_tooltip' | t"
+                        [attr.aria-label]="
+                          ('book.book_slot' | t) + ': ' + range.start + ' - ' + range.end
+                        "
+                        (click)="openBooking(range, day.date)"
+                      >
+                        <span class="range-time"
+                          >{{ range.start }} - {{ range.end }}</span
+                        >
+                        <span class="range-meta">
+                          {{ "book.intersection_date" | t }} {{
+                          selectedDateLabel(day.date) }}
+                        </span>
+                        <span class="range-duration"
+                          >{{ rangeDurationLabel(range) }} {{ "book.shared_time"
+                          | t }}</span
+                        >
+                        <span class="range-action">
+                          <svg-icon name="video"></svg-icon>
+                          <span>{{ "book.book_slot" | t }}</span>
+                        </span>
+                      </button>
+                    </li>
+                    }
+                  </ol>
+                </div>
+                } @else if (day.availableSlots.length > 0) {
+                <div class="day-rail">
+                  <span class="day-rail-marker" aria-hidden="true"></span>
+                  <ol
+                    class="ranges-list"
+                    role="group"
+                    [attr.aria-label]="resultTitle()"
+                  >
+                    @for (slot of day.availableSlots; track slot.start +
+                    slot.end) {
+                    <li>
+                      <button
+                        class="range-card"
+                        type="button"
+                        [ccsTooltip]="'book.book_slot_tooltip' | t"
+                        [attr.aria-label]="
+                          ('book.book_slot' | t) + ': ' + slot.start + ' - ' + slot.end
+                        "
+                        (click)="openBooking(slot, day.date)"
+                      >
+                        <span class="range-time"
+                          >{{ slot.start }} - {{ slot.end }}</span
+                        >
+                        <span class="range-meta">
+                          {{ "book.intersection_date" | t }} {{
+                          selectedDateLabel(day.date) }}
+                        </span>
+                        <span class="range-duration"
+                          >{{ durationLabel() }} {{ "book.shared_time" | t
+                          }}</span
+                        >
+                        <span class="range-action">
+                          <svg-icon name="video"></svg-icon>
+                          <span>{{ "book.book_slot" | t }}</span>
+                        </span>
+                      </button>
+                    </li>
+                    }
+                  </ol>
+                </div>
+                } @else {
+                <div class="state-card empty-state compact-state">
+                  <strong>{{ "book.no_suitable_slots" | t }}</strong>
+                  <span>{{ "book.no_suitable_slots_hint" | t }}</span>
+                </div>
+                }
+              </article>
+              }
+            </div>
+          </section>
+          } @else if (activeStep() === 'params' && !finding() && hasSearched()
+          && error() === null) {
+          <div class="state-card empty-state">
+            <strong>{{ "book.no_suitable_slots" | t }}</strong>
+            <span>{{ "book.no_suitable_slots_hint" | t }}</span>
+          </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

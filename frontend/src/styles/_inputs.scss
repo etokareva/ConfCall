@@ -1,0 +1,123 @@
+.control-input,
+.flatpickr-control {
+  width: 100%;
+  min-height: var(--control-height);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+.control-input {
+  padding: 0.65rem 0.85rem;
+}
+
+.control-input--with-icon {
+  padding-right: 2.75rem;
+}
+
+.control-input--with-stepper {
+  padding-right: 5rem;
+}
+
+.control-input--center {
+  text-align: center;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+
+  > label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+  }
+}
+
+.number-stepper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+
+  input {
+    width: 100%;
+    appearance: textfield;
+    min-width: 0;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    padding: 0.65rem 5rem 0.65rem 0.85rem;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+
+    &:hover,
+    &:focus,
+    &:focus-visible {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+  }
+}
+
+.stepper-unit {
+  position: absolute;
+  right: 2.55rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.stepper-actions {
+  position: absolute;
+  right: 0.35rem;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  width: var(--icon-size-lg);
+  height: calc(var(--control-height) - 0.6rem);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+
+.stepper-button {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-soft);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 800;
+  line-height: 1;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface);
+    color: var(--color-primary);
+    outline: none;
+  }
+}

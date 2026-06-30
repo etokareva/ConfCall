@@ -1,0 +1,86 @@
+<ccs-navbar></ccs-navbar>
+<main id="main-content" class="page-container">
+  <section class="section workspace-section booking-links-page">
+    <div class="section-heading">
+      <div>
+        <h1 class="sr-only">{{ "settings.booking_links" | t }}</h1>
+        <h2>{{ "booking_links.list_title" | t }}</h2>
+      </div>
+    </div>
+
+    <div class="workspace-main">
+      <section class="workspace-panel links-panel">
+        @if (booking.linksLoading$ | async) {
+        <div class="state-card loading-state compact-state">
+          <strong>{{ "settings.loading_links" | t }}</strong>
+          <span>{{ "settings.loading_links_hint" | t }}</span>
+        </div>
+        } @else { @if (booking.linksError$ | async; as linksError) {
+        <div class="state-card error-state compact-state">
+          <strong>{{ "settings.links_load_error" | t }}</strong>
+          <span>{{ linksError | t }}</span>
+          <button type="button" class="btn-retry" (click)="booking.loadLinks()">
+            {{ "common.retry" | t }}
+          </button>
+        </div>
+        } @else { @if (booking.links$ | async; as links) { @if (links.length >
+        0) {
+        <div class="public-link-list">
+          <div class="table-head link-head">
+            <span>{{ "settings.link_title" | t }}</span>
+            <span>{{ "settings.meeting_duration" | t }}</span>
+            <span>{{ "settings.table.status" | t }}</span>
+            <span>{{ "settings.table.actions" | t }}</span>
+          </div>
+          @for (link of links; track link.id) {
+          <article class="public-link-card">
+            <div class="public-link-main">
+              <div class="public-link-title-row">
+                <h4>{{ link.title }}</h4>
+              </div>
+              @if (link.description) {
+              <p>{{ link.description }}</p>
+              }
+              <a
+                class="public-link-url"
+                [href]="publicBookingUrl(link.slug)"
+                target="_blank"
+                rel="noopener noreferrer"
+                [ccsTooltip]="'common.open' | t"
+              >
+                {{ publicBookingUrl(link.slug) }}
+              </a>
+            </div>
+            <span class="duration-chip">
+              <svg-icon name="clock"></svg-icon>
+              <span>
+                {{ link.durationMinutes }} {{ "duration.minutes_suffix" | t }}
+              </span>
+            </span>
+            <span class="link-status" [class.inactive]="!link.isActive">
+              {{ (link.isActive ? "common.active" : "common.disabled") | t }}
+            </span>
+            <div class="public-link-actions">
+              <button
+                type="button"
+                class="icon-action danger-action"
+                [ccsTooltip]="'common.delete' | t"
+                [attr.aria-label]="'common.delete' | t"
+                (click)="deletePublicBookingLink(link)"
+              >
+                <svg-icon name="trash"></svg-icon>
+              </button>
+            </div>
+          </article>
+          }
+        </div>
+        } @else {
+        <div class="state-card empty-state compact-state">
+          <strong>{{ "settings.no_public_links" | t }}</strong>
+          <span>{{ "booking_links.empty_hint" | t }}</span>
+        </div>
+        } } } }
+      </section>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,27 @@
+<div class="dropdown" [class.open]="isOpen()">
+  <button
+    type="button"
+    class="dropdown-trigger"
+    [attr.aria-label]="ariaLabel"
+    aria-haspopup="menu"
+    [attr.aria-controls]="menuId"
+    [attr.aria-expanded]="isOpen()"
+    [ccsTooltip]="tooltip"
+    (click)="toggle()"
+  >
+    <ng-content select="[dropdown-trigger]"></ng-content>
+  </button>
+
+  @if (isOpen()) {
+    <div
+      [id]="menuId"
+      class="dropdown-menu popover-panel popover-scroll"
+      role="menu"
+      [class.align-start]="align === 'start'"
+      [class.align-end]="align === 'end'"
+      (click)="close()"
+    >
+      <ng-content select="[dropdown-content]"></ng-content>
+    </div>
+  }
+</div>

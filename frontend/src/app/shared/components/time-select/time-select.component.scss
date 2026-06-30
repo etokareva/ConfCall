@@ -1,0 +1,47 @@
+.time-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.time-trigger {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  display: inline-grid;
+  place-items: center;
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-primary-soft);
+  cursor: pointer;
+  line-height: 1;
+  transform: translateY(-50%);
+
+  &:hover,
+  &.open,
+  &:focus-visible {
+    color: var(--color-primary);
+    outline: none;
+  }
+
+  &.open,
+  &:focus-visible {
+    box-shadow: none;
+  }
+
+  svg-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.time-menu {
+  display: flex;
+  max-height: 16rem;
+  flex-direction: column;
+  padding: var(--space-2);
+}

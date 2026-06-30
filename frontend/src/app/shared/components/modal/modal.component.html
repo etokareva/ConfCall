@@ -1,0 +1,50 @@
+<div
+  class="modal-dialog"
+  role="dialog"
+  aria-modal="true"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  [attr.aria-labelledby]="'modal-title'"
+  [attr.aria-describedby]="'modal-message'"
+  [class.error]="data.kind === 'error'"
+>
+  <ccs-modal-shell
+    [title]="data.title"
+    titleId="modal-title"
+    [showClose]="false"
+    (close)="close(false)"
+  >
+    <p id="modal-message" class="modal-message">{{ data.message }}</p>
+
+    <div modalFooter class="modal-actions">
+      @if (data.actions?.length) {
+        @for (action of data.actions; track action.value) {
+          <button
+            type="button"
+            [class.btn-primary]="action.kind !== 'secondary'"
+            [class.btn-secondary]="action.kind === 'secondary'"
+            [class.danger]="action.kind === 'danger'"
+            (click)="close(action.value)"
+          >
+            {{ action.label }}
+          </button>
+        }
+      } @else {
+        @if (data.kind === "confirm") {
+          <button class="btn-secondary" type="button" (click)="close(false)">
+            {{ data.cancelText }}
+          </button>
+        }
+        <button
+          class="btn-primary"
+          type="button"
+          [class.danger]="data.kind === 'confirm'"
+          cdkFocusInitial
+          (click)="close(true)"
+        >
+          {{ data.confirmText }}
+        </button>
+      }
+    </div>
+  </ccs-modal-shell>
+</div>

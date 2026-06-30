@@ -1,0 +1,39 @@
+<div
+  class="selectable-card-grid"
+  [attr.role]="groupRole()"
+  [attr.aria-label]="ariaLabel"
+>
+  @for (item of items; track item.id) {
+    <button
+      type="button"
+      class="selectable-card"
+      [class.selected]="isSelected(item.id)"
+      [attr.role]="itemRole()"
+      [attr.aria-checked]="ariaChecked(item.id)"
+      [attr.aria-pressed]="ariaPressed(item.id)"
+      [attr.aria-label]="labelFor(item)"
+      (click)="onToggle(item.id)"
+    >
+      <div class="selectable-card-avatar">
+        @if (showAvatar(item)) {
+          <img
+            [src]="item.avatar"
+            [alt]="item.title"
+            (error)="onAvatarLoadError(item.id)"
+          />
+        } @else {
+          <span>{{ fallback(item) }}</span>
+        }
+      </div>
+      <div class="selectable-card-info">
+        <span class="selectable-card-title">{{ item.title }}</span>
+        @if (item.subtitle) {
+          <span class="selectable-card-subtitle">{{ item.subtitle }}</span>
+        }
+      </div>
+      @if (isSelected(item.id)) {
+        <span class="selectable-card-check">&#10003;</span>
+      }
+    </button>
+  }
+</div>

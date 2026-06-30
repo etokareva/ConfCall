@@ -1,0 +1,88 @@
+<div class="invite-page">
+  <div class="invite-card">
+    <header class="invite-header">
+      <p class="eyebrow">{{ "invite.eyebrow" | t }}</p>
+      <div>
+        <h1>{{ "invite.title" | t }}</h1>
+        <p class="subtitle">{{ "invite.subtitle" | t }}</p>
+      </div>
+    </header>
+
+    @if (loading()) {
+    <div class="state">{{ "invite.loading" | t }}</div>
+    } @else if (error()) {
+    <div class="state error" role="alert">{{ error() }}</div>
+    } @else { @if (invitation(); as invitation) {
+    <section class="invite-summary" [attr.aria-label]="'invite.summary' | t">
+      <div class="summary-row">
+        <span class="summary-label">{{ "invite.group" | t }}</span>
+        <strong>
+          {{ invitation.groupName || ("invite.group_fallback" | t) }}
+        </strong>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">{{ "invite.email" | t }}</span>
+        <strong>{{ invitation.email }}</strong>
+      </div>
+    </section>
+
+    @if (auth.user()?.email === invitation.email) {
+    <section class="invite-actions">
+      <button class="btn-primary" type="button" (click)="accept()">
+        {{ (acceptLoading() ? "invite.accepting" : "invite.accept") | t }}
+      </button>
+      <p class="action-hint">{{ "invite.accept_hint" | t }}</p>
+    </section>
+    } @else {
+    <form class="invite-form" [formGroup]="form" (ngSubmit)="register()">
+      <div class="field-group">
+        <label for="invite-email">{{ "login.email" | t }}</label>
+        <input
+          id="invite-email"
+          name="invite-email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          class="control-input"
+          readonly
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="invite-name">{{ "login.name" | t }}</label>
+        <input
+          id="invite-name"
+          name="invite-name"
+          type="text"
+          formControlName="name"
+          autocomplete="name"
+          class="control-input"
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="invite-password">{{ "login.password" | t }}</label>
+        <input
+          id="invite-password"
+          name="invite-password"
+          type="password"
+          formControlName="password"
+          autocomplete="new-password"
+          class="control-input"
+        />
+      </div>
+
+      <button class="btn-primary" type="submit">
+        {{ (submitting() ? "invite.joining" : "invite.join") | t }}
+      </button>
+    </form>
+    } } }
+
+    <div class="invite-footer">
+      <p class="footer-hint">{{ "invite.sign_in_hint" | t }}</p>
+      <a routerLink="/login" class="btn-secondary back-link">
+        {{ "invite.sign_in_link" | t }}
+      </a>
+    </div>
+  </div>
+</div>

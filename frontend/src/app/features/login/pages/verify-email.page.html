@@ -1,0 +1,15 @@
+<div class="verify-page">
+  <div class="verify-card">
+    @if (loading()) {
+    <h1>{{ "login.verification_title" | t }}</h1>
+    <p>{{ "login.verification_loading" | t }}</p>
+    } @else if (done()) {
+    <h1>{{ "login.verification_success_title" | t }}</h1>
+    <p>{{ "login.verification_success_message" | t }}</p>
+    } @else {
+    <h1>{{ "login.verification_failed_title" | t }}</h1>
+    <p>{{ error() || ("login.verification_failed_message" | t) }}</p>
+    <a routerLink="/login" class="back-link">{{ "login.back_to_login" | t }}</a>
+    }
+  </div>
+</div>

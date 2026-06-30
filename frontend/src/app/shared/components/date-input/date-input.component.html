@@ -1,0 +1,25 @@
+<div class="date-input">
+  <input
+    #input
+    type="text"
+    class="control-input control-input--with-icon"
+    [id]="inputId || null"
+    [name]="name || inputId || null"
+    [disabled]="disabled"
+    [attr.aria-label]="label | t"
+    [attr.aria-describedby]="describedBy || null"
+    (input)="onInput($event)"
+    (click)="openPickerFromInput()"
+    (focus)="openPickerFromInput()"
+    (blur)="markTouched()"
+  />
+  <button
+    type="button"
+    class="icon-button date-picker-toggle date-toggle"
+    [disabled]="disabled"
+    [attr.aria-label]="openLabel | t"
+    (mousedown)="openPicker($event)"
+  >
+    <svg-icon name="calendar"></svg-icon>
+  </button>
+</div>

@@ -1,0 +1,67 @@
+.dialog-shell {
+  display: block;
+  width: 100%;
+}
+
+.dialog-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.summary-item {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+
+  small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+  }
+
+  strong {
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.form-group {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+input,
+textarea {
+  width: 100%;
+}
+
+textarea.control-input {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .dialog-summary {
+    grid-template-columns: 1fr;
+  }
+}

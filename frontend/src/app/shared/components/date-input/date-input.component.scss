@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.date-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.date-toggle {
+  position: absolute;
+  right: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+
+  svg-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}

@@ -1,0 +1,61 @@
+<ccs-modal-shell
+  eyebrow="availability.meeting"
+  [title]="meeting.title"
+  (close)="close()"
+>
+  <div class="meeting-dialog">
+    @if (meeting.description) {
+      <p class="description">{{ meeting.description }}</p>
+    }
+
+    <dl class="meeting-meta">
+      <div>
+        <dt>{{ "availability.dialog.start" | t }}</dt>
+        <dd>{{ meeting.startTime | date: "d MMMM y, HH:mm" }}</dd>
+      </div>
+      <div>
+        <dt>{{ "availability.dialog.end" | t }}</dt>
+        <dd>{{ meeting.endTime | date: "d MMMM y, HH:mm" }}</dd>
+      </div>
+      <div>
+        <dt>{{ "meetings.status" | t }}</dt>
+        <dd>{{ statusKey() | t }}</dd>
+      </div>
+    </dl>
+
+    @if (meeting.participants.length > 0) {
+      <section
+        class="participants"
+        [attr.aria-label]="'meetings.participants' | t"
+      >
+        <h4>{{ "meetings.participants" | t }}</h4>
+        <ul>
+          @for (participant of meeting.participants; track participant.email) {
+            <li>
+              <span>{{ participant.name || participant.email }}</span>
+              @if (participant.name && participant.email) {
+                <small>{{ participant.email }}</small>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+
+  <div modalFooter class="dialog-actions">
+    @if (meeting.videoUrl) {
+      <a
+        class="btn-primary"
+        [href]="meeting.videoUrl"
+        target="_blank"
+        rel="noreferrer"
+      >
+        {{ "meetings.open_video" | t }}
+      </a>
+    }
+    <button type="button" class="btn-secondary" (click)="close()">
+      {{ "common.close" | t }}
+    </button>
+  </div>
+</ccs-modal-shell>

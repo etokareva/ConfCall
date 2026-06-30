@@ -1,0 +1,9 @@
+node_modules/
+dist/
+build/
+coverage/
+.nyc_output/
+.angular/
+.playwright/
+*.tsbuildinfo
+*.log

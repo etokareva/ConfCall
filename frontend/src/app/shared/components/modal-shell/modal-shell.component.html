@@ -1,0 +1,34 @@
+<section class="modal-shell">
+  <header class="modal-shell-header">
+    <div class="modal-shell-title">
+      @if (eyebrow) {
+        <p class="modal-shell-eyebrow">{{ eyebrow | t }}</p>
+      }
+      <h2 [id]="titleId || null">{{ title | t }}</h2>
+      @if (subtitle) {
+        <p class="modal-shell-subtitle">{{ subtitle }}</p>
+      }
+    </div>
+    <div class="modal-shell-controls">
+      <ng-content select="[modalHeaderActions]"></ng-content>
+      @if (showClose) {
+        <button
+          type="button"
+          class="modal-shell-close"
+          [attr.aria-label]="closeLabel | t"
+          (click)="close.emit()"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="modal-shell-body">
+    <ng-content></ng-content>
+  </div>
+
+  <footer class="modal-shell-footer">
+    <ng-content select="[modalFooter]"></ng-content>
+  </footer>
+</section>

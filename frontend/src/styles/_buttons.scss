@@ -1,0 +1,123 @@
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.icon-button {
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  text-decoration: none;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    box-shadow: none;
+  }
+}
+
+.date-picker-toggle {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-primary-soft);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-primary);
+    background: var(--overlay-primary);
+    color: var(--color-primary-hover);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+  }
+}
+
+.btn-primary {
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-primary-hover);
+    color: var(--color-primary-text);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  &.danger {
+    background: var(--color-danger);
+    color: var(--color-text);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--color-danger-hover);
+    }
+  }
+}
+
+.btn-secondary {
+  border: 1px solid var(--color-border-control);
+  background: var(--color-bg);
+  color: var(--color-text);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+.btn-danger {
+  border: 1px solid var(--overlay-danger-border-strong);
+  background: var(--color-danger-surface);
+  color: var(--color-danger-soft);
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-danger);
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}
+
+.icon-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0;
+  line-height: 0;
+
+  svg-icon {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    margin: auto;
+  }
+}

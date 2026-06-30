@@ -1,0 +1,136 @@
+<ccs-navbar></ccs-navbar>
+<div class="page-container">
+  <section class="landing-page">
+    <div class="landing-hero">
+      <div class="hero-copy">
+        <span class="eyebrow">{{ "home.hero.badge" | t }}</span>
+        <h1>{{ "home.hero.title" | t }}</h1>
+        <p class="lead">{{ "home.hero.subtitle" | t }}</p>
+
+        <ul class="hero-features">
+          @for (feature of features; track feature.title) {
+          <li>
+            <svg-icon [name]="feature.icon" aria-hidden="true"></svg-icon>
+            <span>{{ feature.title | t }}</span>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="visual-shell">
+          <div class="visual-body">
+            <aside class="visual-sidebar">
+              <div class="visual-card small">
+                <span class="visual-label">{{ "home.visual.groups" | t }}</span>
+                <strong>{{ "home.visual.groups_name" | t }}</strong>
+                <span>{{ "home.visual.groups_count" | t }}</span>
+              </div>
+              <div class="visual-card small">
+                <span class="visual-label"
+                  >{{ "home.visual.availability" | t }}</span
+                >
+                <strong>{{ "home.visual.rules_name" | t }}</strong>
+                <span>{{ "home.visual.rules_description" | t }}</span>
+              </div>
+              <div class="visual-card small highlight">
+                <span class="visual-label"
+                  >{{ "home.visual.booking" | t }}</span
+                >
+                <strong>{{ "home.visual.booking_name" | t }}</strong>
+                <span>{{ "home.visual.booking_description" | t }}</span>
+              </div>
+            </aside>
+
+            <div class="visual-calendar">
+              <div class="calendar-header">
+                <span>{{ "home.visual.calendar_month" | t }}</span>
+                <div class="calendar-nav">
+                  <button type="button" aria-label="Previous month">
+                    <svg-icon name="chevron-left" aria-hidden="true"></svg-icon>
+                  </button>
+                  <button type="button" aria-label="Next month">
+                    <svg-icon
+                      name="chevron-right"
+                      aria-hidden="true"
+                    ></svg-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="calendar-weekdays">
+                @for (weekday of visualWeekdays; track weekday) {
+                <span>{{ weekday | t }}</span>
+                }
+              </div>
+
+              <div class="calendar-grid">
+                @for (cell of visualCalendar; track cell.day) {
+                <span class="calendar-day" [class.busy]="cell.kind === 'busy'">
+                  <span class="calendar-day-number">{{ cell.day }}</span>
+                  @if (cell.kind === "busy") {
+                  <span class="calendar-day-busy"></span>
+                  } @else {
+                  <span class="calendar-day-slot"></span>
+                  @if (cell.slotCount > 1) {
+                  <span class="calendar-day-slot secondary"></span>
+                  } }
+                </span>
+                }
+              </div>
+            </div>
+
+            <aside class="visual-summary">
+              <div class="visual-card summary">
+                <span class="visual-label"
+                  >{{ "home.visual.intersection" | t }}</span
+                >
+                <strong>{{ "home.visual.intersection_time" | t }}</strong>
+                <span>{{ "home.visual.intersection_description" | t }}</span>
+              </div>
+              <div class="visual-card summary">
+                <span class="visual-label"
+                  >{{ "home.visual.next_step" | t }}</span
+                >
+                <strong>{{ "home.visual.next_step_name" | t }}</strong>
+                <span>{{ "home.visual.next_step_description" | t }}</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="steps-band">
+      <div class="section-copy">
+        <span class="eyebrow">{{ "home.steps.badge" | t }}</span>
+        <h2>{{ "home.steps.title" | t }}</h2>
+        <p>{{ "home.steps.subtitle" | t }}</p>
+      </div>
+
+      <div class="steps-list">
+        @for (step of steps; track step.index) {
+        <article class="step-card">
+          <span class="step-index">{{ step.index }}</span>
+          <h3>{{ step.title | t }}</h3>
+          <p>{{ step.description | t }}</p>
+        </article>
+        }
+      </div>
+    </section>
+
+    <section class="feature-band">
+      @for (feature of features; track feature.title) {
+      <article class="feature-card">
+        <span class="feature-icon" aria-hidden="true">
+          <svg-icon [name]="feature.icon"></svg-icon>
+        </span>
+        <div>
+          <h3>{{ feature.title | t }}</h3>
+          <p>{{ feature.description | t }}</p>
+        </div>
+      </article>
+      }
+    </section>
+  </section>
+</div>

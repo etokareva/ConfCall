@@ -1,0 +1,106 @@
+<ccs-navbar></ccs-navbar>
+<div class="page-container">
+  <div class="dashboard">
+    <h1 class="sr-only">{{ "dashboard.title" | t }}</h1>
+
+    <div class="page-context">
+      <strong>{{ "dashboard.title" | t }}</strong>
+      <span>{{ "dashboard.subtitle" | t }}</span>
+    </div>
+
+    @if (vm$ | async; as vm) {
+    <div class="attention-grid">
+      @if (vm.newMeetings > 0) {
+      <a routerLink="/meetings" class="attention-card accent">
+        <span class="eyebrow">{{ "dashboard.attention" | t }}</span>
+        <strong>{{ vm.newMeetings }} {{ "dashboard.new_meetings" | t }}</strong>
+        <span>{{ "dashboard.open_list_hint" | t }}</span>
+      </a>
+      } @if (!vm.hasAvailability) {
+      <a routerLink="/availability" class="attention-card warning">
+        <span class="eyebrow">{{ "dashboard.setup" | t }}</span>
+        <strong>{{ "dashboard.availability_empty" | t }}</strong>
+        <span>{{ "dashboard.availability_empty_hint" | t }}</span>
+      </a>
+      } @if (vm.links === 0) {
+      <a routerLink="/groups" class="attention-card">
+        <span class="eyebrow">{{ "dashboard.booking" | t }}</span>
+        <strong>{{ "dashboard.no_public_link" | t }}</strong>
+        <span>{{ "dashboard.no_public_link_hint" | t }}</span>
+      </a>
+      }
+    </div>
+
+    @if (nextAction(vm); as action) {
+    <section class="next-action">
+      <div class="next-action-copy">
+        <span class="eyebrow">{{ "dashboard.next_step" | t }}</span>
+        <h2>{{ action.title | t }}</h2>
+        <p>{{ action.description | t }}</p>
+      </div>
+      <a [routerLink]="action.link">{{ action.label | t }}</a>
+    </section>
+    }
+
+    <section class="workbench">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>{{ "dashboard.upcoming_meetings" | t }}</h2>
+          <a routerLink="/meetings">{{ "dashboard.all_meetings" | t }}</a>
+        </div>
+        @if (vm.upcomingMeetings.length > 0) {
+        <div class="meeting-preview-list">
+          @for (meeting of vm.upcomingMeetings; track meeting.startTime) {
+          <a routerLink="/meetings" class="meeting-preview">
+            <span class="meeting-date"
+              >{{ formatDateTime(meeting.startTime) }}</span
+            >
+            <strong>{{ meeting.title }}</strong>
+          </a>
+          }
+        </div>
+        } @else {
+        <div class="empty-state">
+          <span class="empty-icon"><svg-icon name="calendar"></svg-icon></span>
+          <strong>{{ "dashboard.no_scheduled_meetings" | t }}</strong>
+          <span>{{ "dashboard.no_scheduled_meetings_hint" | t }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>{{ "dashboard.quick_actions" | t }}</h2>
+        </div>
+        <div class="action-list">
+          @for (action of quickActions(vm); track action.route) {
+          <a [routerLink]="action.route">
+            <span class="action-icon"
+              ><svg-icon [name]="action.icon"></svg-icon
+            ></span>
+            <span>
+              <strong>{{ action.label | t }}</strong>
+              <small>{{ action.description | t }}</small>
+            </span>
+          </a>
+          } @if (auth.isAdmin()) {
+          <a routerLink="/groups">
+            <span class="action-icon"><svg-icon name="users"></svg-icon></span>
+            <span>
+              <strong>{{ "dashboard.invite_member" | t }}</strong>
+              <small>{{ "dashboard.invite_member_description" | t }}</small>
+            </span>
+          </a>
+          }
+        </div>
+      </div>
+    </section>
+    } @else {
+    <div class="skeleton-grid">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    }
+  </div>
+</div>

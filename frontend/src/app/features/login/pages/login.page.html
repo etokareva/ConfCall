@@ -1,0 +1,176 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="hero">
+      <p class="eyebrow">{{ "home.hero.badge" | t }}</p>
+      <h1>{{ "home.hero.title" | t }}</h1>
+      <p class="subtitle">{{ "login.subtitle" | t }}</p>
+    </div>
+
+    <div class="mode-switch" role="tablist" aria-label="Authentication mode">
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="mode() === 'login'"
+        (click)="mode.set('login')"
+      >
+        {{ "login.sign_in_tab" | t }}
+      </button>
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="mode() === 'register'"
+        (click)="mode.set('register')"
+      >
+        {{ "login.register_tab" | t }}
+      </button>
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="mode() === 'reset'"
+        (click)="mode.set('reset')"
+      >
+        {{ "login.reset_tab" | t }}
+      </button>
+    </div>
+
+    @if (mode() === 'login') {
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+      <h2>{{ "login.sign_in_title" | t }}</h2>
+      <p class="helper">{{ "login.sign_in_help" | t }}</p>
+
+      <div class="form-group">
+        <label for="sign-in-email">{{ "login.email" | t }}</label>
+        <input
+          id="sign-in-email"
+          name="sign-in-email"
+          type="email"
+          [placeholder]="'login.email_placeholder' | t"
+          formControlName="email"
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="sign-in-password">{{ "login.password" | t }}</label>
+        <input
+          id="sign-in-password"
+          name="sign-in-password"
+          type="password"
+          [placeholder]="'login.password_placeholder' | t"
+          formControlName="password"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button class="btn-primary" type="submit">
+        {{ (loggingIn() ? "login.signing_in" : "login.sign_in") | t }}
+      </button>
+
+      <button type="button" class="text-action" (click)="mode.set('reset')">
+        {{ "login.forgot_password" | t }}
+      </button>
+    </form>
+    } @else if (mode() === 'register') {
+    <form class="login-form" [formGroup]="registerForm" (ngSubmit)="register()">
+      <h2>{{ "login.register_title" | t }}</h2>
+      <p class="helper">{{ "login.register_help" | t }}</p>
+
+      <div class="form-group">
+        <label for="register-name">{{ "login.name" | t }}</label>
+        <input
+          id="register-name"
+          name="register-name"
+          type="text"
+          [placeholder]="'login.name_placeholder' | t"
+          formControlName="name"
+          autocomplete="name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="register-email">{{ "login.email" | t }}</label>
+        <input
+          id="register-email"
+          name="register-email"
+          type="email"
+          [placeholder]="'login.email_placeholder' | t"
+          formControlName="email"
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="register-password">{{ "login.password" | t }}</label>
+        <input
+          id="register-password"
+          name="register-password"
+          type="password"
+          [placeholder]="'login.password_placeholder' | t"
+          formControlName="password"
+          autocomplete="new-password"
+        />
+      </div>
+
+      <button class="btn-primary" type="submit">
+        {{ (registering() ? "login.registering" : "login.register") | t }}
+      </button>
+
+      @if (registrationSent()) {
+      <div class="success" role="status" aria-live="polite">
+        <strong>{{ "login.verification_sent_title" | t }}</strong>
+        <span
+          >{{ "login.verification_sent_message" | t: { email:
+          registrationEmail() } }}</span
+        >
+      </div>
+      }
+    </form>
+    } @else {
+    <form
+      class="login-form"
+      [formGroup]="resetRequestForm"
+      (ngSubmit)="requestPasswordReset()"
+    >
+      <h2>{{ "login.reset_title" | t }}</h2>
+      <p class="helper">{{ "login.reset_help" | t }}</p>
+
+      <div class="form-group">
+        <label for="reset-email">{{ "login.email" | t }}</label>
+        <input
+          id="reset-email"
+          name="reset-email"
+          type="email"
+          [placeholder]="'login.email_placeholder' | t"
+          formControlName="email"
+          autocomplete="email"
+        />
+      </div>
+
+      <button class="btn-primary" type="submit">
+        {{ (resetting() ? "login.resetting" : "login.send_reset_link") | t }}
+      </button>
+
+      @if (resetSent()) {
+      <div class="success" role="status" aria-live="polite">
+        <strong>{{ "login.reset_sent_title" | t }}</strong>
+        <span
+          >{{ "login.reset_sent_message" | t:{ email: resetEmail() } }}</span
+        >
+      </div>
+      }
+    </form>
+    } @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    <div class="divider">
+      <span>{{ "login.admin_divider" | t }}</span>
+    </div>
+
+    <button class="btn-dev" type="button" (click)="devLogin()">
+      {{ (loggingIn() ? "login.loading" : "login.dev_admin") | t }}
+    </button>
+
+    <a routerLink="/" class="back-link">{{ "login.back_home" | t }}</a>
+  </div>
+</div>

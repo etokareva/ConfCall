@@ -1,0 +1,142 @@
+<ccs-navbar></ccs-navbar>
+<div class="page-container">
+  <div class="meetings-page">
+    <h1 class="sr-only">{{ "meetings.title" | t }}</h1>
+
+    <div class="page-context page-context-actions">
+      <div class="page-context-copy">
+        <strong>{{ "meetings.title" | t }}</strong>
+        <span>{{ "meetings.subtitle" | t }}</span>
+      </div>
+      <a routerLink="/book" class="btn-primary">
+        <svg-icon name="calendar"></svg-icon>
+        <span>{{ "meetings.schedule" | t }}</span>
+      </a>
+    </div>
+
+    @if (loading()) {
+    <div class="state-card loading-state">
+      <strong>{{ "meetings.loading" | t }}</strong>
+      <span>{{ "meetings.loading_hint" | t }}</span>
+    </div>
+    } @else if (loadError()) {
+    <div class="state-card error-state">
+      <strong>{{ "meetings.load_error" | t }}</strong>
+      <span>{{ loadError() }}</span>
+      <button type="button" class="btn-retry" (click)="loadMeetings()">
+        {{ "common.retry" | t }}
+      </button>
+    </div>
+    } @else { @if (meetings().length === 0) {
+    <div class="empty">
+      <span class="empty-icon"><svg-icon name="video"></svg-icon></span>
+      <p>{{ "meetings.empty.all" | t }}</p>
+      <span>{{ "meetings.empty.all_hint" | t }}</span>
+      <a routerLink="/book" class="btn-primary">{{ "book.title" | t }}</a>
+    </div>
+    } @else {
+    <div
+      class="filters"
+      role="tablist"
+      [attr.aria-label]="'meetings.filter' | t"
+    >
+      @for (option of filterOptions; track option.value) {
+      <button
+        type="button"
+        role="tab"
+        [attr.aria-selected]="filter() === option.value"
+        [class.active]="filter() === option.value"
+        (click)="filter.set(option.value)"
+      >
+        <span>{{ option.label | t }}</span>
+        <strong>{{ filterCount(meetings(), option.value) }}</strong>
+      </button>
+      }
+    </div>
+
+    @if (filteredMeetings(meetings()); as visibleMeetings) { @if
+    (visibleMeetings.length === 0) {
+    <div class="empty filtered">
+      <span class="empty-icon"><svg-icon name="calendar"></svg-icon></span>
+      <p>{{ emptyMessage() }}</p>
+      <span>{{ emptyHint() }}</span>
+      <a routerLink="/book" class="btn-primary">{{ "book.title" | t }}</a>
+    </div>
+    } @else {
+    <div class="meetings-list">
+      @for (m of visibleMeetings; track m.id) {
+      <div
+        class="meeting-card"
+        [class.cancelled]="m.status === 'cancelled'"
+        [class.new]="isHighlighted(m)"
+      >
+        @if (isHighlighted(m)) {
+        <span class="new-label">{{ "meetings.new_label" | t }}</span>
+        }
+        <div class="meeting-header">
+          <div>
+            <h3>{{ m.title }}</h3>
+            <span class="meeting-date">
+              <svg-icon name="calendar"></svg-icon>
+              {{ formatDate(m.startTime) }}
+            </span>
+          </div>
+          <span class="badge" [class]="m.status"
+            >{{ statusLabel(m.status) }}</span
+          >
+        </div>
+        <p class="desc">
+          {{ m.description || ("meetings.no_description" | t) }}
+        </p>
+        @if (m.status === 'cancelled' && cancelledByLabel(m)) {
+        <p class="cancelled-by">
+          <svg-icon name="info"></svg-icon>
+          <span>
+            {{ "meetings.cancelled_by" | t }}:
+            <strong>{{ cancelledByLabel(m) }}</strong>
+          </span>
+        </p>
+        }
+        <div class="meeting-meta">
+          <span class="datetime">
+            <svg-icon name="clock"></svg-icon>
+            {{ formatTime(m.startTime) }} - {{ formatTime(m.endTime) }}
+          </span>
+          <span>
+            <svg-icon name="users"></svg-icon>
+            {{ m.participants.length }} {{ "meetings.participants_count" | t }}
+          </span>
+          @if (currentUserParticipationStatus(m) === 'declined') {
+          <span class="participation-badge declined">
+            {{ "meetings.participation.declined" | t }}
+          </span>
+          }
+        </div>
+        <div class="participants">
+          <span class="label">{{ "meetings.participants" | t }}:</span>
+          @for (p of m.participants; track p.email) {
+          <span class="tag">{{ p.name || p.email }}</span>
+          }
+        </div>
+        <div class="meeting-actions">
+          @if (m.videoUrl) {
+          <a [href]="m.videoUrl" target="_blank" class="video-link">
+            <svg-icon name="video"></svg-icon>
+            <span>{{ "meetings.open_video" | t }}</span>
+          </a>
+          } @if (canDecline(m)) {
+          <button class="btn-secondary" type="button" (click)="decline(m.id)">
+            {{ "meetings.decline.action" | t }}
+          </button>
+          } @if (m.status === 'scheduled' && isOrganizer(m)) {
+          <button class="btn-cancel" type="button" (click)="cancel(m.id)">
+            {{ "common.cancel" | t }}
+          </button>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    } } } }
+  </div>
+</div>

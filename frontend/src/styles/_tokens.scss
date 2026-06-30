@@ -1,0 +1,115 @@
+:root {
+  --color-bg: #0f0f23;
+  --color-bg-elevated: #111b33;
+  --color-surface: #16213e;
+  --color-surface-hover: #1b2949;
+  --color-surface-alt: #1a1a3e;
+  --color-nav: #1a1a2e;
+  --color-danger-surface: #1a0f1f;
+  --color-success-surface: #0f2f1f;
+
+  --color-border: #1a1a3e;
+  --color-border-muted: #263250;
+  --color-border-strong: #2c3958;
+  --color-border-control: #333333;
+  --color-border-subtle: #444444;
+  --color-border-dashed: #555555;
+  --color-border-modal: #283452;
+  --color-border-card: #253150;
+
+  --color-text: #ffffff;
+  --color-text-strong: #f4f8ff;
+  --color-text-soft: #dbe7ff;
+  --color-text-muted: #aeb8cf;
+  --color-text-subtle: #9ba7c0;
+  --color-text-calm: #c9d2ea;
+  --color-text-filter: #c8d2ea;
+  --color-text-disabled: #4f5870;
+  --color-text-placeholder: #66708a;
+  --color-text-dim: #888888;
+  --color-text-faint: #666666;
+  --color-text-light-muted: #aaaaaa;
+  --color-text-link-muted: #cccccc;
+  --color-text-inverse: #07131d;
+  --color-text-inverse-strong: #08111f;
+
+  --color-primary: #4fbdba;
+  --color-primary-hover: #72e2df;
+  --color-primary-soft: #77dedb;
+  --color-primary-text: #0f0f23;
+  --color-danger: #e94560;
+  --color-danger-hover: #d13a52;
+  --color-danger-text: #ff8a8a;
+  --color-danger-soft: #ff7a8f;
+  --color-warning: #e0b84d;
+  --color-control-muted: #26334f;
+  --color-slot-free: var(--color-primary-soft);
+  --color-slot-busy: var(--color-warning);
+  --color-slot-recurring: var(--color-slot-free);
+  --color-slot-date: var(--color-slot-free);
+  --color-slot-meeting: var(--color-slot-busy);
+
+  --overlay-modal: rgba(0, 0, 0, 0.7);
+  --overlay-backdrop: rgba(5, 8, 20, 0.72);
+  --overlay-primary: rgba(79, 189, 186, 0.14);
+  --overlay-primary-focus: rgba(79, 189, 186, 0.35);
+  --overlay-primary-ring: rgba(79, 189, 186, 0.12);
+  --overlay-danger: rgba(233, 69, 96, 0.12);
+  --overlay-danger-border: rgba(233, 69, 96, 0.55);
+  --overlay-danger-border-strong: rgba(233, 69, 96, 0.6);
+  --overlay-warning: rgba(224, 184, 77, 0.16);
+  --overlay-slot-free: rgba(79, 189, 186, 0.14);
+  --overlay-slot-busy: rgba(224, 184, 77, 0.16);
+  --overlay-slot-recurring: var(--overlay-slot-free);
+  --overlay-slot-date: var(--overlay-slot-free);
+  --overlay-slot-meeting: var(--overlay-slot-busy);
+  --overlay-menu-separator: rgba(44, 57, 88, 0.65);
+  --shadow-popover: 0 20px 60px rgba(0, 0, 0, 0.42);
+  --shadow-modal: 0 24px 70px rgba(0, 0, 0, 0.35);
+  --focus-ring: 0 0 0 3px var(--overlay-primary-ring);
+  --focus-outline: var(--overlay-primary-focus);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+  --radius-round: 50%;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 0.9rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.1rem;
+  --font-size-2xl: 1.25rem;
+  --font-size-3xl: 1.3rem;
+  --font-size-title: 2rem;
+  --font-size-stat: 2.5rem;
+
+  --page-top-offset: 60px;
+  --container-narrow: 400px;
+  --container-modal: 500px;
+  --container-content: 900px;
+  --container-wide: 1000px;
+  --container-page: 1200px;
+  --container-readable: 980px;
+  --control-height: 43px;
+  --icon-size-sm: 1rem;
+  --icon-size-md: 1.25rem;
+  --icon-size-lg: 2rem;
+  --z-dialog: 1100;
+  --z-overlay: 1300;
+  --z-tooltip: 1400;
+}

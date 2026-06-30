@@ -1,0 +1,192 @@
+@use "./styles/tokens";
+@use "./styles/buttons";
+@use "./styles/inputs";
+@use "./styles/popovers";
+@use "./styles/vendors/flatpickr";
+
+* {
+  margin: 0;
+
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+main:focus {
+  outline: none;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
+}
+
+.app-dialog-backdrop {
+  background: var(--overlay-backdrop);
+}
+
+.select-overlay-backdrop {
+  background: transparent;
+}
+
+.cdk-overlay-container {
+  z-index: var(--z-overlay);
+}
+
+.app-tooltip-overlay {
+  z-index: var(--z-tooltip);
+}
+
+.page-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+
+  > strong,
+  .page-context-copy strong {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.65rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--color-border-muted);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-primary-soft);
+    font-size: var(--font-size-xs);
+    text-transform: uppercase;
+  }
+
+  > span,
+  .page-context-copy span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-context-copy {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: var(--space-3);
+  }
+}
+
+@media (max-width: 760px) {
+  .page-context {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    > span,
+    .page-context-copy span {
+      overflow: visible;
+      white-space: normal;
+    }
+
+    .page-context-copy {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+  }
+}
+
+.summary-icon,
+.stat-icon,
+.action-icon,
+.slot-icon,
+.empty-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--radius-md);
+  background: var(--overlay-primary);
+  color: var(--color-primary-soft);
+  line-height: 0;
+
+  svg-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: auto;
+  }
+}
+
+.summary-icon {
+  width: 2.7rem;
+  height: 2.7rem;
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+.action-icon,
+.slot-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.empty-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.slot-card {
+  appearance: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-alt);
+  color: var(--color-text-strong);
+
+  .slot-time {
+    color: var(--color-text-strong);
+  }
+
+  .book-label {
+    color: var(--color-primary);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+
+    .slot-time {
+      color: var(--color-text);
+    }
+
+    .book-label {
+      color: var(--color-primary-hover);
+    }
+  }
+}

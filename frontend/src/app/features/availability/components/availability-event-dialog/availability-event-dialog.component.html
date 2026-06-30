@@ -1,0 +1,211 @@
+<form class="event-dialog" [formGroup]="form" (ngSubmit)="submit()">
+  <ccs-modal-shell
+    eyebrow="availability.dialog.day"
+    [title]="
+      data.event ? 'availability.dialog.edit_slot' : 'availability.dialog.slot'
+    "
+    [subtitle]="formatDateLabel(data.dateKey)"
+    (close)="close()"
+  >
+    <div
+      class="mode-switch"
+      role="tablist"
+      [attr.aria-label]="'availability.dialog.slot_type' | t"
+    >
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="!isRecurring()"
+        [ccsTooltip]="'availability.dialog.single_tooltip' | t"
+        (click)="setMode('single')"
+      >
+        {{ "availability.dialog.single" | t }}
+      </button>
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="isRecurring()"
+        [ccsTooltip]="'availability.dialog.recurring_tooltip' | t"
+        (click)="setMode('recurring')"
+      >
+        {{ "availability.dialog.recurring" | t }}
+      </button>
+    </div>
+
+    @if (!isRecurring()) {
+      <div class="form-grid single-grid">
+        <fieldset class="form-section">
+          <legend>{{ "availability.dialog.section_time" | t }}</legend>
+          <div class="field-row time-range">
+            <div class="field-group">
+              <label for="availability-single-start">{{
+                "availability.dialog.start_time" | t
+              }}</label>
+              <ccs-time-select
+                inputId="availability-single-start"
+                name="availability-single-start"
+                label="availability.dialog.start_time"
+                [ccsTooltip]="'availability.dialog.start_tooltip' | t"
+                formControlName="startTime"
+              ></ccs-time-select>
+            </div>
+            <div class="field-group">
+              <label for="availability-single-end">{{
+                "availability.dialog.end_time" | t
+              }}</label>
+              <ccs-time-select
+                inputId="availability-single-end"
+                name="availability-single-end"
+                label="availability.dialog.end_time"
+                [ccsTooltip]="'availability.dialog.end_tooltip' | t"
+                formControlName="endTime"
+              ></ccs-time-select>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="form-section">
+          <legend>{{ "availability.dialog.section_scope" | t }}</legend>
+          <div class="field-group">
+            <label for="availability-single-date">{{
+              "availability.dialog.date" | t
+            }}</label>
+            <ccs-date-input
+              inputId="availability-single-date"
+              name="availability-single-date"
+              label="availability.dialog.date"
+              [ccsTooltip]="'availability.dialog.single_date_tooltip' | t"
+              formControlName="singleDate"
+            ></ccs-date-input>
+          </div>
+        </fieldset>
+      </div>
+    } @else {
+      <div class="form-grid recurring-grid">
+        <fieldset class="form-section">
+          <legend>{{ "availability.dialog.section_time" | t }}</legend>
+          <div class="field-row time-range">
+            <div class="field-group">
+              <label for="availability-recurring-start-time">{{
+                "availability.dialog.start_time" | t
+              }}</label>
+              <ccs-time-select
+                inputId="availability-recurring-start-time"
+                name="availability-recurring-start-time"
+                label="availability.dialog.start_time"
+                [ccsTooltip]="'availability.dialog.start_tooltip' | t"
+                formControlName="startTime"
+              ></ccs-time-select>
+            </div>
+            <div class="field-group">
+              <label for="availability-recurring-end-time">{{
+                "availability.dialog.end_time" | t
+              }}</label>
+              <ccs-time-select
+                inputId="availability-recurring-end-time"
+                name="availability-recurring-end-time"
+                label="availability.dialog.end_time"
+                [ccsTooltip]="'availability.dialog.end_tooltip' | t"
+                formControlName="endTime"
+              ></ccs-time-select>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="form-section">
+          <legend>{{ "availability.dialog.section_scope" | t }}</legend>
+          <div class="field-row scope-grid">
+            <div class="field-group">
+              <label for="availability-recurring-start-date">{{
+                "availability.dialog.period_start" | t
+              }}</label>
+              <ccs-date-input
+                inputId="availability-recurring-start-date"
+                name="availability-recurring-start-date"
+                label="availability.dialog.period_start"
+                [ccsTooltip]="'availability.dialog.from_date_tooltip' | t"
+                formControlName="startDate"
+              ></ccs-date-input>
+            </div>
+            <div class="field-group">
+              <label for="availability-recurring-end-date">{{
+                "availability.dialog.period_end" | t
+              }}</label>
+              <ccs-date-input
+                inputId="availability-recurring-end-date"
+                name="availability-recurring-end-date"
+                label="availability.dialog.period_end"
+                [ccsTooltip]="'availability.dialog.to_date_tooltip' | t"
+                formControlName="endDate"
+              ></ccs-date-input>
+            </div>
+            <div class="field-group">
+              <label for="availability-repeat-every">{{
+                "availability.dialog.repeat_every" | t
+              }}</label>
+              <div class="number-stepper">
+                <input
+                  id="availability-repeat-every"
+                  name="availability-repeat-every"
+                  type="number"
+                  min="1"
+                  class="control-input control-input--with-stepper"
+                  formControlName="repeatEveryDays"
+                  [attr.aria-label]="'availability.dialog.repeat_interval' | t"
+                  [ccsTooltip]="'availability.dialog.repeat_every_tooltip' | t"
+                />
+                <span class="stepper-unit">{{ "common.day.many" | t }}</span>
+                <div class="stepper-actions">
+                  <button
+                    type="button"
+                    class="stepper-button"
+                    [attr.aria-label]="
+                      'availability.dialog.increase_repeat' | t
+                    "
+                    (click)="adjustRepeatEvery(1)"
+                  >
+                    <span aria-hidden="true">+</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="stepper-button"
+                    [attr.aria-label]="
+                      'availability.dialog.decrease_repeat' | t
+                    "
+                    (click)="adjustRepeatEvery(-1)"
+                  >
+                    <span aria-hidden="true">−</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    }
+
+    @if (form.errors?.["invalidTimeRange"]) {
+      <p class="dialog-error">
+        {{ "availability.dialog.invalid_time" | t }}
+      </p>
+    }
+    @if (form.errors?.["invalidDateRange"]) {
+      <p class="dialog-error">{{ "availability.dialog.invalid_date" | t }}</p>
+    }
+
+    <p class="dialog-hint">
+      {{ "availability.dialog.hint" | t }}
+    </p>
+
+    <div modalFooter class="dialog-actions">
+      <button type="button" class="btn-secondary" (click)="close()">
+        {{ "common.cancel" | t }}
+      </button>
+      <button
+        type="submit"
+        class="btn-primary"
+        [ccsTooltip]="'availability.dialog.save_tooltip' | t"
+      >
+        {{ actionLabel() | t }}
+      </button>
+    </div>
+  </ccs-modal-shell>
+</form>

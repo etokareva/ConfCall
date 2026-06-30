@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: confcall-scheduler-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-confcall_scheduler}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change_me_mysql_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me_mysql_root_password}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -u${MYSQL_USER:-app_user} -p${MYSQL_PASSWORD:-change_me_mysql_password} --silent",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.60.0-noble
+    working_dir: /work
+    network_mode: host
+    ipc: host
+    environment:
+      BASE_URL: http://127.0.0.1:4200
+      API_URL: http://127.0.0.1:3000/api
+    volumes:
+      - .:/work
+
+volumes:
+  mysql_data:

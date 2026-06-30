@@ -1,0 +1,575 @@
+<ccs-navbar></ccs-navbar>
+<div class="page-container">
+  <div class="settings-page">
+    <h1 class="sr-only">{{ pageTitleKey() | t }}</h1>
+
+    @if (isGroupsPage()) {
+    <div class="section workspace-section">
+      <div class="section-heading">
+        <div>
+          <h2>{{ "groups.title" | t }}</h2>
+          <p class="desc-text">{{ "groups.description" | t }}</p>
+        </div>
+      </div>
+
+      <div class="workspace-layout">
+        <aside class="workspace-sidebar">
+          @if (groupsLoading()) {
+          <div class="state-card loading-state compact-state">
+            <strong>{{ "groups.loading" | t }}</strong>
+            <span>{{ "groups.loading_description" | t }}</span>
+          </div>
+          } @else if (groupsError()) {
+          <div class="state-card error-state compact-state">
+            <strong>{{ "groups.load_error" | t }}</strong>
+            <span>{{ groupsError() | t }}</span>
+            <button type="button" class="btn-retry" (click)="loadGroups()">
+              {{ "common.retry" | t }}
+            </button>
+          </div>
+          } @else if (groupsList().length > 0) {
+          <div class="nav-card">
+            <div class="nav-card-header">
+              <h3>{{ "nav.groups" | t }}</h3>
+              <button
+                type="button"
+                class="header-icon-action"
+                [ccsTooltip]="'groups.create_tooltip' | t"
+                [attr.aria-label]="'groups.create' | t"
+                (click)="openCreateGroupDialog()"
+              >
+                +
+              </button>
+            </div>
+            <div class="group-sections">
+              @if (ownedGroups().length > 0) {
+              <div class="group-section">
+                <div class="group-section-header">
+                  <h4>{{ "groups.owned_groups" | t }}</h4>
+                </div>
+                <div
+                  class="group-list"
+                  [attr.aria-label]="'groups.owned_groups' | t"
+                >
+                  @for (group of ownedGroups(); track group.id) {
+                  <button
+                    type="button"
+                    class="group-tab"
+                    [class.active]="group.id === selectedGroupId()"
+                    (click)="selectGroup(group.id)"
+                    [ccsTooltip]="
+                      ('groups.select_tooltip' | t) +
+                      ' «' +
+                      group.name +
+                      '»'
+                    "
+                  >
+                    <strong>{{ group.name }}</strong>
+                    <span class="group-count-label"
+                      >{{ "groups.members_count" | t: { count:
+                      group.members.length } }}</span
+                    >
+                    <span class="group-role">{{ "common.owner" | t }}</span>
+                  </button>
+                  }
+                </div>
+              </div>
+              } @if (memberGroups().length > 0) {
+              <div class="group-section">
+                <div class="group-section-header">
+                  <h4>{{ "groups.member_groups" | t }}</h4>
+                </div>
+                <div
+                  class="group-list"
+                  [attr.aria-label]="'groups.member_groups' | t"
+                >
+                  @for (group of memberGroups(); track group.id) {
+                  <button
+                    type="button"
+                    class="group-tab"
+                    [class.active]="group.id === selectedGroupId()"
+                    (click)="selectGroup(group.id)"
+                    [ccsTooltip]="
+                      ('groups.select_tooltip' | t) +
+                      ' «' +
+                      group.name +
+                      '»'
+                    "
+                  >
+                    <strong>{{ group.name }}</strong>
+                    <span class="group-count-label"
+                      >{{ "groups.members_count" | t: { count:
+                      group.members.length } }}</span
+                    >
+                    <span class="group-role">{{ "common.member" | t }}</span>
+                  </button>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+          } @else {
+          <div class="state-card empty-state compact-state">
+            <strong>{{ "groups.empty_title" | t }}</strong>
+            <span>{{ "groups.empty_description" | t }}</span>
+            <button
+              type="button"
+              class="btn-primary state-action"
+              [ccsTooltip]="'groups.create_tooltip' | t"
+              (click)="openCreateGroupDialog()"
+            >
+              {{ "groups.create" | t }}
+            </button>
+          </div>
+          }
+        </aside>
+
+        <div class="workspace-main">
+          @if (groupsLoading()) {
+          <div class="state-card loading-state">
+            <strong>{{ "groups.loading" | t }}</strong>
+            <span>{{ "groups.loading_description" | t }}</span>
+          </div>
+          } @else if (groupsError()) {
+          <div class="state-card error-state">
+            <strong>{{ "groups.load_error" | t }}</strong>
+            <span>{{ groupsError() | t }}</span>
+            <button type="button" class="btn-retry" (click)="loadGroups()">
+              {{ "common.retry" | t }}
+            </button>
+          </div>
+          } @else { @if (selectedGroup(); as group) {
+          <div class="workspace-panel">
+            <div class="workspace-panel-header">
+              <div>
+                <h3>{{ group.name }}</h3>
+                <p>{{ "groups.members_available_hint" | t }}</p>
+              </div>
+              <div class="summary-badges">
+                <span class="role-badge">{{ selectedGroupRoleLabel() }}</span>
+                @if (group.role === 'owner') {
+                <button
+                  type="button"
+                  class="header-icon-action"
+                  [ccsTooltip]="'groups.edit_tooltip' | t"
+                  [attr.aria-label]="'groups.edit_group' | t"
+                  (click)="openEditGroupDialog()"
+                >
+                  <svg-icon name="edit"></svg-icon>
+                </button>
+                }
+              </div>
+            </div>
+
+            @if (group.role !== 'owner') {
+            <div class="state-card info-state compact-state">
+              <strong>{{ "groups.member_notice_title" | t }}</strong>
+              <span>{{ "groups.member_notice_message" | t }}</span>
+            </div>
+            }
+
+            <div class="workspace-subpanel">
+              <div class="workspace-panel-header">
+                <div>
+                  <h4>{{ "groups.members" | t }}</h4>
+                  <p>{{ "groups.members_available_hint" | t }}</p>
+                </div>
+                @if (canManageSelectedGroup()) {
+                <button
+                  type="button"
+                  class="add-member-action"
+                  [ccsTooltip]="'groups.send_invitations_tooltip' | t"
+                  [attr.aria-label]="'groups.send_invitations' | t"
+                  (click)="openInviteDialog()"
+                >
+                  +
+                </button>
+                }
+              </div>
+
+              @if (promoCodesLoading()) {
+              <div class="state-card loading-state compact-state">
+                <strong>{{ "groups.loading_invitations" | t }}</strong>
+                <span>{{ "groups.loading_invitations_hint" | t }}</span>
+              </div>
+              } @else if (promoCodesError()) {
+              <div class="state-card error-state compact-state">
+                <strong>{{ "settings.invites_load_error" | t }}</strong>
+                <span>{{ promoCodesError() | t }}</span>
+                <button
+                  type="button"
+                  class="btn-retry"
+                  (click)="loadPromoCodes()"
+                >
+                  {{ "common.retry" | t }}
+                </button>
+              </div>
+              } @else {
+              <div
+                class="member-list"
+                [class.with-actions]="canManageSelectedGroup()"
+              >
+                <div
+                  class="table-head member-head"
+                  [class.with-actions]="canManageSelectedGroup()"
+                >
+                  <span>{{ "settings.table.member" | t }}</span>
+                  <span>{{ "settings.table.email" | t }}</span>
+                  <span>{{ "settings.table.role" | t }}</span>
+                  @if (canManageSelectedGroup()) {
+                  <span>{{ "settings.table.actions" | t }}</span>
+                  }
+                </div>
+                @for (person of groupPeopleRows(); track person.kind + '-' +
+                person.id) {
+                <div
+                  class="member-card"
+                  [class.inactive]="person.kind === 'invitation'"
+                  [class.with-actions]="canManageSelectedGroup()"
+                >
+                  <div class="row-primary">
+                    <strong>{{ person.name || person.email }}</strong>
+                  </div>
+                  <div class="row-secondary">
+                    <span>{{ person.email }}</span>
+                  </div>
+                  <div class="row-role">
+                    @if (person.kind === "member") {
+                    <small>
+                      {{ (person.role === "owner" ? "common.owner" :
+                      "common.member") | t }}
+                    </small>
+                    } @else {
+                    <small
+                      >{{ ("groups.invite_status_" + person.status) | t
+                      }}</small
+                    >
+                    }
+                  </div>
+                  @if (canManageSelectedGroup()) {
+                  <div class="row-actions member-actions">
+                    @if (person.kind === "member" && person.role !== 'owner') {
+                    <button
+                      type="button"
+                      class="icon-action"
+                      [ccsTooltip]="'groups.remove_member_tooltip' | t"
+                      (click)="removeMember(group.id, person)"
+                    >
+                      <svg-icon name="trash"></svg-icon>
+                      <span class="sr-only">
+                        {{ "groups.remove_member" | t }}
+                      </span>
+                    </button>
+                    } @else if (person.kind === "invitation" && person.status
+                    === 'pending') {
+                    <button
+                      type="button"
+                      class="resend-link"
+                      [disabled]="resendingInvitationId() === person.id"
+                      [ccsTooltip]="'groups.resend_invitation' | t"
+                      (click)="resendInvitation(group.id, person)"
+                    >
+                      {{ (resendingInvitationId() === person.id ?
+                      "groups.resending_invitation" :
+                      "groups.resend_invitation") | t }}
+                    </button>
+                    }
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+              @if (groupPeopleRows().length === 0) {
+              <div class="state-card empty-state compact-state">
+                <strong>{{ "groups.no_invitations" | t }}</strong>
+                <span>{{ "groups.no_invitations_hint" | t }}</span>
+              </div>
+              } }
+            </div>
+          </div>
+          } @else {
+          <div class="state-card empty-state">
+            <strong>{{ "groups.empty_title" | t }}</strong>
+            <span>{{ "groups.empty_description" | t }}</span>
+          </div>
+          } }
+        </div>
+      </div>
+    </div>
+    } @if (isProfilePage()) {
+    <div class="section profile-section">
+      <div class="profile-heading">
+        <div>
+          <h2>{{ "profile.title" | t }}</h2>
+          <p class="desc-text">{{ "profile.description" | t }}</p>
+        </div>
+      </div>
+
+      <div class="profile-layout">
+        <form
+          class="profile-editor create-box"
+          [formGroup]="profileForm"
+          (ngSubmit)="saveProfile()"
+        >
+          <div class="field-group">
+            <label for="profile-name">{{ "profile.display_name" | t }}</label>
+            <input
+              id="profile-name"
+              name="profile-name"
+              type="text"
+              formControlName="name"
+              [placeholder]="'profile.name_placeholder' | t"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="profile-avatar">{{ "profile.photo_url" | t }}</label>
+            <input
+              id="profile-avatar"
+              name="profile-avatar"
+              type="url"
+              formControlName="avatar"
+              [placeholder]="'profile.avatar_placeholder' | t"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="profile-locale">{{ "profile.language" | t }}</label>
+            <select
+              id="profile-locale"
+              name="profile-locale"
+              formControlName="locale"
+            >
+              @for (language of i18n.languages; track language.value) {
+              <option [ngValue]="language.value">
+                {{ language.nativeLabel }} · {{ language.label }}
+              </option>
+              }
+            </select>
+          </div>
+
+          <div class="editor-footer">
+            <button type="submit" [disabled]="savingProfile()">
+              {{ (savingProfile() ? "profile.saving" : "profile.save") | t }}
+            </button>
+            <p class="save-hint">{{ "profile.save_hint" | t }}</p>
+          </div>
+
+          @if (profileError()) {
+          <p class="form-error">{{ profileError() }}</p>
+          }
+        </form>
+
+        <aside
+          class="profile-preview-card"
+          [attr.aria-label]="'profile.preview_title' | t"
+        >
+          <div class="preview-avatar">
+            @if (profileForm.controls.avatar.value) {
+            <img [src]="profileForm.controls.avatar.value" alt="" />
+            } @else {
+            <span>{{ profilePreviewInitial() }}</span>
+            }
+          </div>
+          <div class="preview-copy">
+            <h3>{{ "profile.preview_title" | t }}</h3>
+            <p>{{ "profile.preview_description" | t }}</p>
+          </div>
+          <dl class="preview-details">
+            <div>
+              <dt>{{ "profile.display_name" | t }}</dt>
+              <dd>{{ profilePreviewName() }}</dd>
+            </div>
+            <div>
+              <dt>{{ "profile.photo_url" | t }}</dt>
+              <dd>
+                @if (profileForm.controls.avatar.value) { {{
+                "profile.preview_photo_set" | t }} } @else { {{
+                "profile.preview_photo_empty" | t }} }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ "profile.language" | t }}</dt>
+              <dd>{{ profileLocaleLabel() }}</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+
+@if (createGroupDialogOpen()) {
+<div class="editor-backdrop" (click)="closeCreateGroupDialog()">
+  <div class="group-dialog-shell" (click)="$event.stopPropagation()">
+    <ccs-modal-shell
+      eyebrow="nav.groups"
+      title="groups.create_group_title"
+      [subtitle]="'groups.create_group_subtitle' | t"
+      (close)="closeCreateGroupDialog()"
+    >
+      <form
+        class="dialog-form"
+        [formGroup]="groupForm"
+        (ngSubmit)="createGroup()"
+      >
+        <div class="field-group">
+          <label for="group-name">{{ "groups.name_placeholder" | t }}</label>
+          <input
+            id="group-name"
+            name="group-name"
+            type="text"
+            formControlName="name"
+            [placeholder]="'groups.name_placeholder' | t"
+            [ccsTooltip]="'groups.name_tooltip' | t"
+          />
+        </div>
+        <div class="field-group">
+          <label for="group-avatar">{{ "groups.avatar_url" | t }}</label>
+          <input
+            id="group-avatar"
+            name="group-avatar"
+            type="url"
+            formControlName="avatar"
+            [placeholder]="'groups.avatar_placeholder' | t"
+            [ccsTooltip]="'groups.avatar_tooltip' | t"
+          />
+        </div>
+
+        <div modalFooter class="modal-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="creatingGroup()"
+            (click)="closeCreateGroupDialog()"
+          >
+            {{ "common.cancel" | t }}
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="creatingGroup() || groupForm.invalid"
+            [ccsTooltip]="'groups.create_tooltip' | t"
+          >
+            {{ (creatingGroup() ? "groups.creating" : "groups.create") | t }}
+          </button>
+        </div>
+      </form>
+    </ccs-modal-shell>
+  </div>
+</div>
+} @if (editGroupDialogOpen() && selectedGroup(); as group) {
+<div class="editor-backdrop" (click)="closeEditGroupDialog()">
+  <div class="group-dialog-shell" (click)="$event.stopPropagation()">
+    <ccs-modal-shell
+      eyebrow="groups.group_details"
+      title="groups.edit_group"
+      [subtitle]="group.name"
+      (close)="closeEditGroupDialog()"
+    >
+      <form
+        class="dialog-form"
+        [formGroup]="selectedGroupForm"
+        (ngSubmit)="saveSelectedGroup()"
+      >
+        <div class="field-group">
+          <label for="selected-group-name">
+            {{ "groups.name_placeholder" | t }}
+          </label>
+          <input
+            id="selected-group-name"
+            name="selected-group-name"
+            type="text"
+            formControlName="name"
+            [ccsTooltip]="'groups.name_tooltip' | t"
+          />
+        </div>
+        <div class="field-group">
+          <label for="selected-group-avatar">
+            {{ "groups.avatar_url" | t }}
+          </label>
+          <input
+            id="selected-group-avatar"
+            name="selected-group-avatar"
+            type="url"
+            formControlName="avatar"
+            [placeholder]="'groups.avatar_placeholder' | t"
+            [ccsTooltip]="'groups.avatar_tooltip' | t"
+          />
+        </div>
+
+        <div modalFooter class="modal-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="savingGroup()"
+            (click)="closeEditGroupDialog()"
+          >
+            {{ "common.cancel" | t }}
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="savingGroup() || selectedGroupForm.invalid"
+          >
+            {{ (savingGroup() ? "profile.saving" : "common.save") | t }}
+          </button>
+        </div>
+      </form>
+    </ccs-modal-shell>
+  </div>
+</div>
+} @if (inviteDialogOpen() && selectedGroup(); as group) {
+<div class="editor-backdrop" (click)="closeInviteDialog()">
+  <div class="invite-dialog-shell" (click)="$event.stopPropagation()">
+    <ccs-modal-shell
+      eyebrow="groups.invitations"
+      title="groups.invite_confirm_title"
+      [subtitle]="group.name"
+      (close)="closeInviteDialog()"
+    >
+      <form
+        class="invite-dialog-form"
+        [formGroup]="memberForm"
+        (ngSubmit)="sendInvitations()"
+      >
+        <div class="field-group">
+          <label for="group-member-emails">
+            {{ "groups.invite_emails" | t }}
+          </label>
+          <input
+            id="group-member-emails"
+            name="group-member-emails"
+            type="text"
+            formControlName="emails"
+            [placeholder]="'groups.invite_emails_placeholder' | t"
+            [ccsTooltip]="'groups.invite_emails_tooltip' | t"
+          />
+        </div>
+
+        <div modalFooter class="modal-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            [disabled]="addingMember()"
+            (click)="closeInviteDialog()"
+          >
+            {{ "common.cancel" | t }}
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="addingMember()"
+            [ccsTooltip]="'groups.send_invitations_tooltip' | t"
+          >
+            {{ (addingMember() ? "groups.sending" : "groups.send_invitations") |
+            t }}
+          </button>
+        </div>
+      </form>
+    </ccs-modal-shell>
+  </div>
+</div>
+}

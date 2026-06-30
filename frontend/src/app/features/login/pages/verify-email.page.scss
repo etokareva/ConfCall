@@ -1,0 +1,35 @@
+.verify-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-8);
+  background: var(--color-bg);
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: var(--space-8);
+  border: 1px solid var(--color-surface-alt);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  h1 {
+    margin-bottom: var(--space-3);
+    color: var(--color-text);
+    font-size: var(--font-size-2xl);
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-md);
+  }
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: var(--space-5);
+  color: var(--color-primary-soft);
+  text-decoration: none;
+}

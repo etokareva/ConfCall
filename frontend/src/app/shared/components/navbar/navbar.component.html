@@ -1,0 +1,125 @@
+<a class="skip-link" href="#main-content">{{ "a11y.skip_to_content" | t }}</a>
+<nav class="navbar" [attr.aria-label]="'nav.primary' | t">
+  <div class="nav-brand">
+    <a routerLink="/">ConfCall Scheduler</a>
+  </div>
+  <div class="nav-links">
+    @if (auth.isAuthenticated()) {
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="active"
+        class="nav-icon-link"
+        [attr.aria-label]="'nav.dashboard' | t"
+        [ccsTooltip]="'nav.dashboard' | t"
+      >
+        <svg-icon name="home"></svg-icon>
+        <span class="sr-only">{{ "nav.dashboard" | t }}</span>
+      </a>
+      <a
+        routerLink="/availability"
+        routerLinkActive="active"
+        class="nav-icon-link"
+        [attr.aria-label]="'nav.availability' | t"
+        [ccsTooltip]="'nav.availability' | t"
+      >
+        <svg-icon name="calendar"></svg-icon>
+        <span class="sr-only">{{ "nav.availability" | t }}</span>
+      </a>
+      <a
+        routerLink="/book"
+        routerLinkActive="active"
+        class="nav-icon-link"
+        [attr.aria-label]="'nav.book' | t"
+        [ccsTooltip]="'nav.book' | t"
+      >
+        <svg-icon name="clock"></svg-icon>
+        <span class="sr-only">{{ "nav.book" | t }}</span>
+      </a>
+      <a
+        routerLink="/meetings"
+        routerLinkActive="active"
+        class="nav-icon-link nav-meetings"
+        [attr.aria-label]="'nav.meetings' | t"
+        [ccsTooltip]="'nav.meetings' | t"
+      >
+        <svg-icon name="video"></svg-icon>
+        <span class="sr-only">{{ "nav.meetings" | t }}</span>
+        @if (meetings.newMeetingsCount$ | async; as count) {
+          @if (count > 0) {
+            <span class="nav-badge" aria-hidden="true">{{ count }}</span>
+            <span class="sr-only">
+              {{ "nav.new_meetings_count" | t: { count } }}
+            </span>
+          }
+        }
+      </a>
+      <a
+        routerLink="/booking-links"
+        routerLinkActive="active"
+        class="nav-icon-link"
+        [attr.aria-label]="'nav.booking_links' | t"
+        [ccsTooltip]="'nav.booking_links' | t"
+      >
+        <svg-icon name="link"></svg-icon>
+        <span class="sr-only">{{ "nav.booking_links" | t }}</span>
+      </a>
+      <a
+        routerLink="/groups"
+        routerLinkActive="active"
+        class="nav-icon-link"
+        [attr.aria-label]="'nav.groups' | t"
+        [ccsTooltip]="'nav.groups' | t"
+      >
+        <svg-icon name="users"></svg-icon>
+        <span class="sr-only">{{ "nav.groups" | t }}</span>
+      </a>
+      <ccs-dropdown
+        class="user-menu"
+        [ariaLabel]="'nav.account_menu' | t"
+        [tooltip]="'nav.account_menu' | t"
+        align="end"
+      >
+        <span dropdown-trigger>
+          <span class="user-avatar">
+            @if (showAvatar()) {
+              <img
+                [ngSrc]="userAvatar()!"
+                [alt]="auth.user()?.name || auth.user()?.email || 'avatar'"
+                referrerpolicy="no-referrer"
+                (error)="onAvatarLoadError()"
+                fill
+              />
+            } @else {
+              <span class="user-avatar-fallback">{{ userInitial() }}</span>
+            }
+          </span>
+          <span class="user-name">{{
+            auth.user()?.name || auth.user()?.email
+          }}</span>
+        </span>
+        <div dropdown-content class="account-menu-list">
+          <a
+            role="menuitem"
+            class="popover-option"
+            routerLink="/profile"
+            routerLinkActive="active"
+          >
+            <svg-icon name="user"></svg-icon>
+            <span>{{ "nav.profile" | t }}</span>
+          </a>
+          <button
+            type="button"
+            class="popover-option"
+            role="menuitem"
+            (click)="auth.logout()"
+          >
+            <svg-icon name="log-out"></svg-icon>
+            <span>{{ "nav.sign_out" | t }}</span>
+          </button>
+        </div>
+      </ccs-dropdown>
+    } @else {
+      <a routerLink="/login" class="btn-login">{{ "nav.sign_in" | t }}</a>
+    }
+  </div>
+</nav>
