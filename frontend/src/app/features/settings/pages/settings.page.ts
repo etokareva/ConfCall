@@ -17,7 +17,6 @@ import {
 } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
-import { BookingService } from "../../../core/services/booking.service";
 import { AuthService } from "../../../core/services/auth.service";
 import { I18nService } from "../../../core/i18n/i18n.service";
 import { TranslatePipe } from "../../../core/i18n/translate.pipe";
@@ -29,7 +28,6 @@ import {
   GroupInvitation,
   InviteGroupMembersResult,
   GroupMember,
-  BookingLink,
   UserGroup,
 } from "../../../core/models/api.model";
 import { ModalService } from "../../../core/services/modal.service";
@@ -70,7 +68,6 @@ type GroupPersonRow =
   styleUrl: "./settings.page.scss",
 })
 export class SettingsPage {
-  service = inject(BookingService);
   auth = inject(AuthService);
   i18n = inject(I18nService);
   groups = inject(GroupService);
@@ -78,19 +75,7 @@ export class SettingsPage {
   toast = inject(ToastService);
   router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-  links$ = this.service.links$;
 
-  readonly createForm = new FormGroup({
-    title: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    desc: new FormControl("", { nonNullable: true }),
-    duration: new FormControl(30, {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
   readonly groupForm = new FormGroup({
     name: new FormControl("", {
       nonNullable: true,
@@ -111,20 +96,12 @@ export class SettingsPage {
       validators: [Validators.required],
     }),
   });
-  readonly sendLinkForm = new FormGroup({
-    email: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-  });
   readonly profileForm = new FormGroup({
     name: new FormControl("", { nonNullable: true }),
     avatar: new FormControl("", { nonNullable: true }),
     locale: new FormControl<AppLocale>("ru", { nonNullable: true }),
   });
-  createError = signal<string | null>(null);
   profileError = signal<string | null>(null);
-  creating = signal(false);
   savingProfile = signal(false);
   groupsList = signal<UserGroup[]>([]);
   selectedGroupId = signal<number | null>(null);
@@ -138,7 +115,6 @@ export class SettingsPage {
   promoCodesError = signal<string | null>(null);
   creatingPromo = signal(false);
   resendingInvitationId = signal<number | null>(null);
-  sendingLinkId = signal<number | null>(null);
   createGroupDialogOpen = signal(false);
   editGroupDialogOpen = signal(false);
   inviteDialogOpen = signal(false);
@@ -177,13 +153,6 @@ export class SettingsPage {
   });
 
   constructor() {
-    this.createForm.valueChanges
-      .pipe(
-        debounceTime(250),
-        tap(() => this.createError.set(null)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe();
     this.profileForm.valueChanges
       .pipe(
         debounceTime(250),
@@ -276,12 +245,6 @@ export class SettingsPage {
 
   memberGroups() {
     return this.groupsList().filter((group) => group.role !== "owner");
-  }
-
-  selectedGroupLinks(links: BookingLink[]) {
-    const groupId = this.selectedGroupId();
-    if (!groupId) return [];
-    return links.filter((link) => link.groupId === groupId);
   }
 
   selectGroup(groupId: number) {
@@ -607,93 +570,6 @@ export class SettingsPage {
     ].filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
   }
 
-  create() {
-    if (this.createForm.invalid) {
-      this.createForm.markAllAsTouched();
-      this.createError.set(this.i18n.translate("settings.link_title_required"));
-      return;
-    }
-
-    const groupId = this.selectedGroupId();
-    if (!groupId) {
-      this.toast.info(
-        this.i18n.translate("groups.select_group_first_title"),
-        this.i18n.translate("groups.select_group_first_message"),
-      );
-      return;
-    }
-
-    this.creating.set(true);
-    const { title, desc, duration } = this.createForm.getRawValue();
-    this.service
-      .createLink({
-        groupId,
-        participantIds:
-          this.selectedGroup()?.members.map((member) => member.id) ?? [],
-        title,
-        description: desc || undefined,
-        durationMinutes: duration,
-      })
-      .pipe(
-        tap(() => {
-          this.createForm.reset({
-            title: "",
-            desc: "",
-            duration: 30,
-          });
-          this.toast.success(
-            this.i18n.translate("settings.toast.link_created_title"),
-            this.i18n.translate("settings.toast.link_created_message"),
-          );
-        }),
-        catchError(() => {
-          this.toast.error(
-            this.i18n.translate("settings.toast.link_create_error_title"),
-            this.i18n.translate("common.check_data_retry"),
-          );
-          return EMPTY;
-        }),
-        finalize(() => this.creating.set(false)),
-      )
-      .subscribe();
-  }
-
-  sendBookingLink(link: BookingLink) {
-    if (this.sendLinkForm.invalid) {
-      this.sendLinkForm.markAllAsTouched();
-      this.toast.info(
-        this.i18n.translate("settings.toast.email_check_title"),
-        this.i18n.translate("groups.booking_link_email_required"),
-      );
-      return;
-    }
-
-    const { email } = this.sendLinkForm.getRawValue();
-    this.sendingLinkId.set(link.id);
-    this.service
-      .sendLink(link.id, email.trim().toLowerCase())
-      .pipe(
-        tap(() => {
-          this.sendLinkForm.reset({ email: "" });
-          this.toast.success(
-            this.i18n.translate("groups.booking_link_sent_title"),
-            this.i18n.translate("groups.booking_link_sent_message", {
-              email,
-            }),
-          );
-        }),
-        catchError(() => {
-          this.toast.error(
-            this.i18n.translate("groups.booking_link_send_error_title"),
-            this.i18n.translate("groups.booking_link_send_error_message"),
-          );
-          return EMPTY;
-        }),
-        finalize(() => this.sendingLinkId.set(null)),
-      )
-      .subscribe();
-  }
-
   saveProfile() {
     const { name, avatar, locale } = this.profileForm.getRawValue();
     this.savingProfile.set(true);
@@ -721,67 +597,6 @@ export class SettingsPage {
           return EMPTY;
         }),
         finalize(() => this.savingProfile.set(false)),
-      )
-      .subscribe();
-  }
-
-  origin = window.location.origin;
-  copy(slug: string) {
-    navigator.clipboard.writeText(`${this.origin}/book/${slug}`);
-    this.toast.info(
-      this.i18n.translate("settings.toast.link_copied_title"),
-      this.i18n.translate("settings.toast.link_copied_message"),
-    );
-  }
-
-  toggle(id: number) {
-    this.service
-      .toggleLink(id)
-      .pipe(
-        tap((link) =>
-          this.toast.info(
-            link.isActive
-              ? this.i18n.translate("settings.toast.link_enabled_title")
-              : this.i18n.translate("settings.toast.link_disabled_title"),
-            link.isActive
-              ? this.i18n.translate("settings.toast.link_enabled_message")
-              : this.i18n.translate("settings.toast.link_disabled_message"),
-          ),
-        ),
-        catchError(() => {
-          this.toast.error(
-            this.i18n.translate("settings.toast.link_status_error_title"),
-            this.i18n.translate("settings.toast.connection_retry_message"),
-          );
-          return EMPTY;
-        }),
-      )
-      .subscribe();
-  }
-  delete(id: number) {
-    from(
-      this.modal.confirm({
-        title: this.i18n.translate("settings.delete_link.title"),
-        message: this.i18n.translate("settings.delete_link.message"),
-        confirmText: this.i18n.translate("common.delete"),
-      }),
-    )
-      .pipe(
-        filter(Boolean),
-        switchMap(() => this.service.deleteLink(id)),
-        tap(() =>
-          this.toast.success(
-            this.i18n.translate("settings.toast.link_deleted_title"),
-            this.i18n.translate("settings.toast.link_deleted_message"),
-          ),
-        ),
-        catchError(() => {
-          this.toast.error(
-            this.i18n.translate("settings.toast.link_delete_error_title"),
-            this.i18n.translate("settings.toast.connection_retry_message"),
-          );
-          return EMPTY;
-        }),
       )
       .subscribe();
   }
@@ -816,7 +631,6 @@ export class SettingsPage {
   ngOnInit() {
     if (this.isGroupsPage()) {
       this.loadGroups();
-      this.service.loadLinks();
     }
   }
 
