@@ -26,7 +26,7 @@ ConfCall Scheduler — приложение для планирования ви
 - Backend ошибки и бизнес-сообщения API приходят как ключи локализации, а фронтенд переводит их по текущему языку.
 - Dev-auth для локальной разработки.
 - Playwright screenshots через Docker для визуальной проверки интерфейса.
-- Playwright + axe-core для автоматического accessibility audit WCAG A/AA.
+- Playwright + axe-core для автоматического accessibility audit WCAG A/AA на `/login` и основных авторизованных маршрутах.
 - Единая система дизайн-токенов для цветов, семантических маркеров календаря, отступов, радиусов, размеров контролов и типографики.
 - Стилизованный выбор даты и длительности на странице бронирования.
 
@@ -41,7 +41,7 @@ ConfCall Scheduler — приложение для планирования ви
 | Video       | Яндекс Телемост REST API                                               |
 | Local infra | Docker Compose                                                         |
 | UI          | Runtime i18n, Angular CDK Overlay/Dialog/Toast, SCSS tokens, flatpickr |
-| UI checks   | Playwright в Docker                                                    |
+| UI checks   | Playwright в Docker, axe-core accessibility audit                      |
 
 Подробнее по инструментам: [TECH_STACK.md](./TECH_STACK.md)
 
@@ -207,6 +207,18 @@ npm run dev:fe
 
 - Frontend: http://localhost:4200/
 - Backend: http://localhost:3000/
+
+Проверка доступности:
+
+```bash
+npm run a11y
+```
+
+Если локальный Chromium в среде не стартует, использовать dockerized Playwright:
+
+```bash
+docker compose run --rm playwright npm run a11y
+```
 
 ## Авторизация в разработке
 

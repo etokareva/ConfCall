@@ -81,7 +81,14 @@ npm run a11y
 npm run ui:screenshot:docker
 ```
 
-Если Playwright/Chrome недоступен в среде, агент должен явно написать, что визуальная проверка не выполнена и почему.
+Если локальный Playwright/Chromium недоступен в среде, агент должен сначала попробовать Docker-вариант:
+
+```bash
+docker compose run --rm playwright npm run a11y
+docker compose run --rm playwright npm run ui:screenshot
+```
+
+Если и он недоступен, агент должен явно написать, что автоматическая/визуальная проверка не выполнена и почему.
 
 ## Частые Ошибки AI-Агента В Этом Проекте
 

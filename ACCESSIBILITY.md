@@ -10,9 +10,13 @@
 
 ## Источники
 
+- WCAG 2.1, W3C Recommendation: https://www.w3.org/TR/WCAG21/
 - WCAG 2.2, W3C Recommendation: https://www.w3.org/TR/WCAG22/
+- MDN Accessibility: https://developer.mozilla.org/en-US/docs/Web/Accessibility
 - WAI-ARIA Authoring Practices Guide patterns: https://www.w3.org/WAI/ARIA/apg/patterns/
 - Angular Accessibility best practices: https://angular.dev/best-practices/a11y
+- AskEARN, 10 tips for an accessible website: https://askearn.org/page/10-tips-for-an-accessible-website
+- Recite Me, accessibility best practices: https://reciteme.com/news/website-accessibility-best-practices/
 
 ## Общие правила
 
@@ -27,9 +31,11 @@
 ## Структура страницы
 
 - Основное содержимое приложения находится внутри `main#main-content`.
+- В приложении должен быть только один основной landmark `main`; feature-страницы не должны вкладывать собственный `<main>` внутрь router-outlet.
 - После смены маршрута фокус переводится на `main#main-content`, чтобы screen reader не оставался на старом пункте меню.
 - В навигации должен быть skip link `Перейти к основному содержимому`.
 - Верхнее меню должно быть `<nav>` с локализованным `aria-label`.
+- Активный пункт навигации должен объявляться через `aria-current="page"`.
 - На странице должен быть один основной `h1`; секции ниже используют последовательные заголовки.
 - Не использовать пустые заголовки или заголовки только ради размера текста.
 
@@ -82,6 +88,7 @@
 - Действия в ячейке дня должны быть кнопками с понятными `aria-label`.
 - Маркеры занятых встреч не должны выглядеть как кнопки, если они не кликабельны.
 - Цветовые маркеры свободного и занятого времени должны иметь текстовое объяснение в легенде.
+- Календарные поля ввода должны объявлять открытие popup через `aria-haspopup` и отражать состояние через `aria-expanded`, если виджет это поддерживает.
 - При клике по дню открывается просмотр расписания дня; добавление слота выполняется отдельной кнопкой.
 - Встречи, которые блокируют время, должны отображаться как занятое время и не предлагаться для бронирования.
 
@@ -93,6 +100,7 @@
 - Проверить формы: поля имеют labels, ошибки понятны, submit не теряет данные.
 - Проверить live-сообщения: toast и ошибки объявляются screen reader-семантикой.
 - Запустить автоматический axe-аудит: `npm run a11y`.
+- Если локальный Chromium не стартует в текущей среде, запускать audit через `docker compose run --rm playwright npm run a11y`.
 - Запустить `npm run format` и `npm run check`.
 
 ## Что уже внедрено
@@ -101,11 +109,16 @@
 - Skip link к основному содержимому.
 - Перенос фокуса на `main#main-content` после смены маршрута.
 - Локализованный `aria-label` для основной навигации.
+- Активные пункты верхнего меню помечаются через `aria-current="page"`.
 - Screen-reader текст с количеством новых встреч рядом с визуальным бейджем.
 - Icon-only пункты меню имеют `aria-label`, скрытый текст и tooltip.
 - Dropdown аккаунта имеет `aria-haspopup`, `aria-expanded`, `aria-controls`, `role="menu"` и закрытие по click outside, `Escape` и потере фокуса.
 - Общая модалка имеет dialog-семантику и связь заголовка/описания.
 - Toast использует `role="status"` для обычных сообщений и `role="alert"` для ошибок.
+- Формы входа используют `tablist`/`tabpanel` семантику для переключения сценариев входа, регистрации и сброса пароля.
 - Формы входа и ключевые поля бронирования имеют связанные `label for/id`.
+- Страницы публичного бронирования и списка ссылок не создают вложенные `main` landmarks и объявляют загрузку/ошибки через `role="status"` и `role="alert"`.
+- Popup календаря в `ccs-date-input` объявляется через `aria-haspopup="dialog"` и отражает состояние `aria-expanded`.
+- Контраст calendar day numbers и subtitle в selectable-card-grid проверен и доведён до прохождения axe WCAG A/AA.
 - Выбор группы в бронировании размечен как `radiogroup`, выбор участников — как набор toggle-кнопок с `aria-pressed`.
-- Playwright содержит axe-аудит WCAG A/AA для `/login` и основных авторизованных разделов.
+- Playwright содержит axe-аудит WCAG A/AA для `/login` и основных авторизованных разделов; актуальная проверка проходит через Docker Playwright-контейнер.
