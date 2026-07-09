@@ -270,6 +270,34 @@
   justify-content: flex-end;
   min-width: 0;
   gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.send-link-form {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  input {
+    width: clamp(9rem, 16vw, 13rem);
+    min-height: 2.2rem;
+    padding: 0 var(--space-2);
+    border: 1px solid var(--color-border-control);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+
+    &::placeholder {
+      color: var(--color-text-dim);
+    }
+
+    &:focus-visible {
+      border-color: var(--color-primary);
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+  }
 }
 
 .icon-action {

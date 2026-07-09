@@ -705,6 +705,7 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
   "groups.booking_link_description_placeholder":
     "Por ejemplo: revisión breve de ponencias",
   "groups.booking_link_email": "Email del invitado",
+  "groups.booking_link_email_label": "Email del invitado",
   "groups.booking_link_email_placeholder": "guest@example.com",
   "groups.booking_link_email_required":
     "Introduce un email de invitado válido.",

@@ -617,6 +617,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
   "groups.booking_link_create_tooltip": "为所选小组创建公开预约链接",
   "groups.booking_link_description_placeholder": "例如：简短议题讨论",
   "groups.booking_link_email": "访客邮箱",
+  "groups.booking_link_email_label": "访客邮箱",
   "groups.booking_link_email_placeholder": "guest@example.com",
   "groups.booking_link_email_required": "请输入有效的访客邮箱。",
   "groups.booking_link_email_tooltip":

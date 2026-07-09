@@ -704,6 +704,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "groups.booking_link_description_placeholder":
     "Например: короткое обсуждение докладов",
   "groups.booking_link_email": "Email гостя",
+  "groups.booking_link_email_label": "Email гостя",
   "groups.booking_link_email_placeholder": "guest@example.com",
   "groups.booking_link_email_required": "Введите корректный email гостя.",
   "groups.booking_link_email_tooltip":
