@@ -9,6 +9,7 @@ import { BookingModule } from './booking/booking.module';
 import { VideoModule } from './video/video.module';
 import { AuthModule } from './auth/auth.module';
 import { GroupModule } from './group/group.module';
+import { CacheInvalidationModule } from './cache/cache-invalidation.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 
@@ -24,6 +25,7 @@ import { AuthGuard } from './auth/auth.guard';
     VideoModule,
     AuthModule,
     GroupModule,
+    CacheInvalidationModule,
   ],
   providers: [
     {

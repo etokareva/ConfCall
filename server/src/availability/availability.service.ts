@@ -1,5 +1,11 @@
-import { ForbiddenException, Injectable, Inject } from '@nestjs/common';
-import { eq, and, gt, gte, inArray, lt } from 'drizzle-orm';
+import {
+  ForbiddenException,
+  Injectable,
+  Inject,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
+import { eq, and, gt, gte, inArray, lt, lte } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { DRIZZLE_TOKEN } from '../db/db.module';
 import * as schema from '../../../db/schema';
@@ -15,6 +21,8 @@ import {
   RangeIntersectionResponse,
   AvailabilityRangeSource,
 } from './dto/availability.dto';
+import { CacheInvalidationService } from '../cache/cache-invalidation.service';
+import { Subscription } from 'rxjs';
 
 interface RangeWithSources {
   start: number;
@@ -22,11 +30,57 @@ interface RangeWithSources {
   sources: AvailabilityRangeSource[];
 }
 
+interface MeetingCandidate {
+  id: number;
+  startTime: Date;
+  endTime: Date;
+  organizerId: number;
+}
+
+interface BusyMeetingCandidates {
+  meetingParticipants: schema.MeetingParticipant[];
+  meetings: MeetingCandidate[];
+}
+
+interface IntersectionCandidates {
+  calendarEvents: CalendarEvent[];
+  meetingParticipants: schema.MeetingParticipant[];
+  meetings: MeetingCandidate[];
+  slots: schema.AvailabilitySlot[];
+}
+
+interface IntersectionCacheEntry {
+  expiresAt: number;
+  value: IntersectionResponse | RangeIntersectionResponse;
+  version: number;
+}
+
+const MAX_INTERSECTION_RANGE_DAYS = 31;
+const INTERSECTION_CACHE_TTL_MS = 5000;
+
 @Injectable()
-export class AvailabilityService {
+export class AvailabilityService implements OnModuleInit, OnModuleDestroy {
+  private readonly intersectionCache = new Map<
+    string,
+    IntersectionCacheEntry
+  >();
+  private cacheInvalidationSubscription?: Subscription;
+
   constructor(
     @Inject(DRIZZLE_TOKEN) private readonly db: MySql2Database<typeof schema>,
+    private readonly cacheInvalidation: CacheInvalidationService,
   ) {}
+
+  onModuleInit() {
+    this.cacheInvalidationSubscription =
+      this.cacheInvalidation.intersectionInvalidated$.subscribe(() =>
+        this.clearIntersectionCache(),
+      );
+  }
+
+  onModuleDestroy() {
+    this.cacheInvalidationSubscription?.unsubscribe();
+  }
 
   async getMySlots(userId: number) {
     return this.db
@@ -48,6 +102,7 @@ export class AvailabilityService {
         .insert(schema.availabilitySlots)
         .values(dto.slots.map((s) => ({ userId, ...s, isActive: true })));
     }
+    await this.cacheInvalidation.invalidateIntersections();
     return this.getMySlots(userId);
   }
 
@@ -75,6 +130,7 @@ export class AvailabilityService {
         })),
       );
     }
+    await this.cacheInvalidation.invalidateIntersections();
     return this.getMyEvents(userId);
   }
 
@@ -115,13 +171,21 @@ export class AvailabilityService {
       await this.ensureUsersBelongToGroup(userIds, groupId);
     }
 
+    const cacheKey = this.buildIntersectionCacheKey(query);
+    const cacheVersion = await this.cacheInvalidation.getIntersectionVersion();
+    const cached = this.getCachedIntersection(cacheKey, cacheVersion);
+    if (cached) return cached;
+
+    let result: IntersectionResponse | RangeIntersectionResponse;
     if (startDate || endDate) {
-      return this.getRangeIntersection({
+      result = await this.getRangeIntersection({
         userIds,
         startDate,
         endDate,
         durationMinutes,
       });
+      this.setCachedIntersection(cacheKey, result, cacheVersion);
+      return result;
     }
 
     if (!date) {
@@ -132,7 +196,9 @@ export class AvailabilityService {
       };
     }
 
-    return this.getDateIntersection(userIds, date, durationMinutes);
+    result = await this.getDateIntersection(userIds, date, durationMinutes);
+    this.setCachedIntersection(cacheKey, result, cacheVersion);
+    return result;
   }
 
   private async getRangeIntersection({
@@ -161,12 +227,27 @@ export class AvailabilityService {
       };
     }
 
+    if (dates.length > MAX_INTERSECTION_RANGE_DAYS) {
+      return {
+        days: [],
+        messageKey: 'availability.intersection.range_too_long',
+      };
+    }
+
+    const candidates = await this.getIntersectionCandidatesForRange(
+      userIds,
+      dates,
+      startDate,
+      endDate,
+    );
+
     const days = await Promise.all(
       dates.map(async (dateKey): Promise<DayIntersectionResponse> => {
         const result = await this.getDateIntersection(
           userIds,
           dateKey,
           durationMinutes,
+          candidates,
         );
         return { date: dateKey, ...result };
       }),
@@ -179,6 +260,7 @@ export class AvailabilityService {
     userIds: number[],
     date: string,
     durationMinutes?: number,
+    candidates?: IntersectionCandidates,
   ): Promise<IntersectionResponse> {
     const targetDate = new Date(date + 'T00:00:00');
     if (Number.isNaN(targetDate.getTime())) {
@@ -191,26 +273,13 @@ export class AvailabilityService {
 
     const dayOfWeek = targetDate.getDay();
 
-    const slots = await this.db
-      .select()
-      .from(schema.availabilitySlots)
-      .where(
-        and(
-          inArray(schema.availabilitySlots.userId, userIds),
-          eq(schema.availabilitySlots.dayOfWeek, dayOfWeek),
-          eq(schema.availabilitySlots.isActive, true),
-        ),
-      );
+    const slots =
+      candidates?.slots.filter((slot) => slot.dayOfWeek === dayOfWeek) ??
+      (await this.getAvailabilitySlotsForDays(userIds, [dayOfWeek]));
 
-    const calendarEvents = await this.db
-      .select()
-      .from(schema.availabilityCalendarEvents)
-      .where(
-        and(
-          inArray(schema.availabilityCalendarEvents.userId, userIds),
-          eq(schema.availabilityCalendarEvents.isActive, true),
-        ),
-      );
+    const calendarEvents =
+      candidates?.calendarEvents ??
+      (await this.getCalendarEventsForDateRange(userIds, date, date));
 
     const byUser = new Map<number, typeof slots>();
     for (const s of slots) {
@@ -227,40 +296,25 @@ export class AvailabilityService {
     const dateStart = new Date(date + 'T00:00:00');
     const dateEnd = new Date(dateStart);
     dateEnd.setDate(dateEnd.getDate() + 1);
-    const existingMeetings = await this.db
-      .select({
-        id: schema.meetings.id,
-        startTime: schema.meetings.startTime,
-        endTime: schema.meetings.endTime,
-        organizerId: schema.meetings.organizerId,
-      })
-      .from(schema.meetings)
-      .where(
-        and(
-          eq(schema.meetings.status, 'scheduled'),
-          lt(schema.meetings.startTime, dateEnd),
-          gt(schema.meetings.endTime, dateStart),
-        ),
-      );
+    const busyCandidates =
+      candidates ??
+      (await this.getBusyMeetingCandidatesForDateRange(
+        userIds,
+        dateStart,
+        dateEnd,
+      ));
+    const existingMeetings = busyCandidates.meetings.filter(
+      (meeting) => meeting.startTime < dateEnd && meeting.endTime > dateStart,
+    );
 
     const mIds = existingMeetings
       .map((m) => m.id)
       .filter((id): id is number => id !== null);
     let busyRanges: { start: number; end: number }[] = [];
     if (mIds.length > 0) {
-      const parts = await this.db
-        .select()
-        .from(schema.meetingParticipants)
-        .where(
-          and(
-            inArray(schema.meetingParticipants.meetingId, mIds),
-            inArray(schema.meetingParticipants.userId, userIds),
-            inArray(schema.meetingParticipants.status, [
-              'pending',
-              'confirmed',
-            ]),
-          ),
-        );
+      const parts = busyCandidates.meetingParticipants.filter((participant) =>
+        mIds.includes(participant.meetingId),
+      );
       const partMeetingIds = new Set(parts.map((p) => p.meetingId));
       const relevant = existingMeetings.filter(
         (m) => partMeetingIds.has(m.id) || userIds.includes(m.organizerId),
@@ -311,7 +365,7 @@ export class AvailabilityService {
         continue;
       }
 
-      userRanges.push(ranges);
+      userRanges.push(this.mergeRanges(ranges));
     }
 
     if (unavailableUserIds.length > 0) {
@@ -381,6 +435,180 @@ export class AvailabilityService {
       cursor.setDate(cursor.getDate() + 1);
     }
     return dates;
+  }
+
+  private getCalendarEventsForDateRange(
+    userIds: number[],
+    startDate: string,
+    endDate: string,
+  ): Promise<CalendarEvent[]> {
+    return this.db
+      .select()
+      .from(schema.availabilityCalendarEvents)
+      .where(
+        and(
+          inArray(schema.availabilityCalendarEvents.userId, userIds),
+          eq(schema.availabilityCalendarEvents.isActive, true),
+          lte(schema.availabilityCalendarEvents.startDate, endDate),
+          gte(schema.availabilityCalendarEvents.endDate, startDate),
+        ),
+      );
+  }
+
+  private buildIntersectionCacheKey(query: GetIntersectionQueryDto): string {
+    return JSON.stringify({
+      date: query.date ?? null,
+      durationMinutes: query.durationMinutes ?? null,
+      endDate: query.endDate ?? null,
+      groupId: query.groupId ?? null,
+      startDate: query.startDate ?? null,
+      userIds: [...query.userIds].sort((a, b) => a - b),
+    });
+  }
+
+  private getCachedIntersection(
+    key: string,
+    cacheVersion: number,
+  ): IntersectionResponse | RangeIntersectionResponse | null {
+    const cached = this.intersectionCache.get(key);
+    if (!cached) return null;
+
+    if (cached.expiresAt <= Date.now() || cached.version !== cacheVersion) {
+      this.intersectionCache.delete(key);
+      return null;
+    }
+
+    return this.cloneIntersectionResponse(cached.value);
+  }
+
+  private setCachedIntersection(
+    key: string,
+    value: IntersectionResponse | RangeIntersectionResponse,
+    cacheVersion: number,
+  ) {
+    this.intersectionCache.set(key, {
+      expiresAt: Date.now() + INTERSECTION_CACHE_TTL_MS,
+      value: this.cloneIntersectionResponse(value),
+      version: cacheVersion,
+    });
+  }
+
+  private clearIntersectionCache() {
+    this.intersectionCache.clear();
+  }
+
+  private cloneIntersectionResponse<
+    T extends IntersectionResponse | RangeIntersectionResponse,
+  >(value: T): T {
+    return JSON.parse(JSON.stringify(value)) as T;
+  }
+
+  private async getIntersectionCandidatesForRange(
+    userIds: number[],
+    dates: string[],
+    startDate: string,
+    endDate: string,
+  ): Promise<IntersectionCandidates> {
+    const dayOfWeeks = [
+      ...new Set(
+        dates.map((dateKey) => new Date(`${dateKey}T00:00:00`).getDay()),
+      ),
+    ];
+    const rangeStart = new Date(`${startDate}T00:00:00`);
+    const rangeEnd = new Date(`${endDate}T00:00:00`);
+    rangeEnd.setDate(rangeEnd.getDate() + 1);
+
+    const [slots, calendarEvents, busyCandidates] = await Promise.all([
+      this.getAvailabilitySlotsForDays(userIds, dayOfWeeks),
+      this.getCalendarEventsForDateRange(userIds, startDate, endDate),
+      this.getBusyMeetingCandidatesForDateRange(userIds, rangeStart, rangeEnd),
+    ]);
+
+    return {
+      calendarEvents,
+      meetingParticipants: busyCandidates.meetingParticipants,
+      meetings: busyCandidates.meetings,
+      slots,
+    };
+  }
+
+  private getAvailabilitySlotsForDays(
+    userIds: number[],
+    dayOfWeeks: number[],
+  ): Promise<schema.AvailabilitySlot[]> {
+    return this.db
+      .select()
+      .from(schema.availabilitySlots)
+      .where(
+        and(
+          inArray(schema.availabilitySlots.userId, userIds),
+          inArray(schema.availabilitySlots.dayOfWeek, dayOfWeeks),
+          eq(schema.availabilitySlots.isActive, true),
+        ),
+      );
+  }
+
+  private async getBusyMeetingCandidatesForDateRange(
+    userIds: number[],
+    start: Date,
+    end: Date,
+  ): Promise<BusyMeetingCandidates> {
+    const organizerMeetings = await this.db
+      .select({
+        id: schema.meetings.id,
+        startTime: schema.meetings.startTime,
+        endTime: schema.meetings.endTime,
+        organizerId: schema.meetings.organizerId,
+      })
+      .from(schema.meetings)
+      .where(
+        and(
+          eq(schema.meetings.status, 'scheduled'),
+          inArray(schema.meetings.organizerId, userIds),
+          lt(schema.meetings.startTime, end),
+          gt(schema.meetings.endTime, start),
+        ),
+      );
+
+    const participantRows = await this.db
+      .select({
+        meeting: {
+          id: schema.meetings.id,
+          startTime: schema.meetings.startTime,
+          endTime: schema.meetings.endTime,
+          organizerId: schema.meetings.organizerId,
+        },
+        participant: schema.meetingParticipants,
+      })
+      .from(schema.meetingParticipants)
+      .innerJoin(
+        schema.meetings,
+        eq(schema.meetings.id, schema.meetingParticipants.meetingId),
+      )
+      .where(
+        and(
+          inArray(schema.meetingParticipants.userId, userIds),
+          inArray(schema.meetingParticipants.status, ['pending', 'confirmed']),
+          eq(schema.meetings.status, 'scheduled'),
+          lt(schema.meetings.startTime, end),
+          gt(schema.meetings.endTime, start),
+        ),
+      );
+
+    const meetingById = new Map<number, MeetingCandidate>();
+    for (const meeting of organizerMeetings) {
+      meetingById.set(meeting.id, meeting);
+    }
+    for (const { meeting } of participantRows) {
+      meetingById.set(meeting.id, meeting);
+    }
+
+    return {
+      meetingParticipants: participantRows.map(
+        ({ participant }) => participant,
+      ),
+      meetings: [...meetingById.values()],
+    };
   }
 
   private formatDateKey(value: Date): string {
@@ -486,21 +714,60 @@ export class AvailabilityService {
       m = mins % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
   }
-  private intersectRanges(left: RangeWithSources[], right: RangeWithSources[]) {
+  private mergeRanges(ranges: RangeWithSources[]): RangeWithSources[] {
+    const sorted = [...ranges].sort((a, b) => {
+      if (a.start !== b.start) return a.start - b.start;
+      return a.end - b.end;
+    });
+    const merged: RangeWithSources[] = [];
+
+    for (const range of sorted) {
+      const previous = merged[merged.length - 1];
+      if (!previous || range.start > previous.end) {
+        merged.push({
+          start: range.start,
+          end: range.end,
+          sources: [...range.sources],
+        });
+        continue;
+      }
+
+      previous.end = Math.max(previous.end, range.end);
+      previous.sources = [...previous.sources, ...range.sources];
+    }
+
+    return merged;
+  }
+
+  private intersectRanges(
+    left: RangeWithSources[],
+    right: RangeWithSources[],
+  ): RangeWithSources[] {
     const result: RangeWithSources[] = [];
-    for (const leftRange of left) {
-      for (const rightRange of right) {
-        const start = Math.max(leftRange.start, rightRange.start);
-        const end = Math.min(leftRange.end, rightRange.end);
-        if (start < end) {
-          result.push({
-            start,
-            end,
-            sources: [...leftRange.sources, ...rightRange.sources],
-          });
-        }
+    let leftIndex = 0;
+    let rightIndex = 0;
+
+    while (leftIndex < left.length && rightIndex < right.length) {
+      const leftRange = left[leftIndex];
+      const rightRange = right[rightIndex];
+      const start = Math.max(leftRange.start, rightRange.start);
+      const end = Math.min(leftRange.end, rightRange.end);
+
+      if (start < end) {
+        result.push({
+          start,
+          end,
+          sources: [...leftRange.sources, ...rightRange.sources],
+        });
+      }
+
+      if (leftRange.end < rightRange.end) {
+        leftIndex += 1;
+      } else {
+        rightIndex += 1;
       }
     }
+
     return result;
   }
 
