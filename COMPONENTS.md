@@ -37,9 +37,10 @@
 
 | Компонент                       | Путь                                                          | Назначение                                                                                                           | Возможность переиспользования                     |
 | ------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `ccs-user-select`               | `features/book/components/user-select/`                       | Обёртка выбора участников группы над `ccs-selectable-card-grid`                                                      | Feature-specific mapping `UserWithAvailability`   |
 | `ccs-booking-dialog`            | `features/book/components/booking-dialog/`                    | Общий диалог для создания внутренней встречи и публичной ссылки бронирования с единым контекстом группы и участников | Feature-specific, использует `ccs-modal-shell`    |
 | `ccs-availability-event-dialog` | `features/availability/components/availability-event-dialog/` | Создание/редактирование слота доступности                                                                            | Feature-specific, использует shared form controls |
+| `ccs-availability-month-grid`   | `features/availability/components/availability-month-grid/`   | Month-view сетка календаря доступности: дни, chip слотов, маркер встреч, keyboard focus                              | Feature-specific, можно расширять внутри availability |
+| `ccs-availability-day-details`  | `features/availability/components/availability-day-details/`  | Содержимое модального окна расписания дня: список слотов/встреч, edit/delete actions, empty state                    | Feature-specific, использует `ccs-modal-shell`    |
 | `ccs-meeting-details-dialog`    | `features/availability/components/meeting-details-dialog/`    | Просмотр деталей встречи из календаря доступности                                                                    | Можно переиспользовать на странице встреч         |
 
 ## Потенциальные Выносы
@@ -51,7 +52,7 @@
 | Empty/error/loading states | Несколько страниц                             | Вынести `ccs-state` с вариантами `empty`, `error`, `loading`                                                              |
 | User/member cards          | `/book`, `/groups`, `/meetings`               | Вынести компактный `ccs-person-chip` или `ccs-user-card`                                                                  |
 | Public link rows           | `/booking-links`                              | Если появятся в другом разделе, вынести `ccs-link-row`: кликабельный URL, status chip и icon-actions с tooltip/aria-label |
-| Calendar month grid        | `/availability`                               | Вынести после стабилизации API доступности и keyboard-сценариев                                                           |
+| Availability calendar math | `/availability`                               | Уже вынесено в feature utils; поднимать выше по дереву стоит только при втором реальном сценарии использования          |
 
 ## Datepicker Решение
 

@@ -12,8 +12,9 @@
 
 | Тег                      | Файлы                                                                                                       | Назначение                                                                                                      |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `#availability-calendar` | `frontend/src/app/features/availability/pages/availability.page.{ts,html,scss}`                             | Month-view календарь доступности, легенда, свободные слоты и занятые встречи                                    |
+| `#availability-calendar` | `frontend/src/app/features/availability/pages/availability.page.{ts,html,scss}`, `frontend/src/app/features/availability/components/availability-month-grid/` | Month-view календарь доступности, легенда, свободные слоты и занятые встречи                                    |
 | `#availability-dialog`   | `frontend/src/app/features/availability/components/availability-event-dialog/`                              | Диалог создания разового или повторяющегося слота                                                               |
+| `#availability-day`      | `frontend/src/app/features/availability/components/availability-day-details/`                               | Модальное окно расписания дня, редактирование и удаление слотов                                                 |
 | `#groups`                | `server/src/group/`, `frontend/src/app/core/services/group.service.ts`, `/groups`, `/book`                  | Группы, аватар группы, приглашения по email, участники, публичные ссылки                                        |
 | `#meeting-details`       | `frontend/src/app/features/availability/components/meeting-details-dialog/`                                 | CDK Dialog с информацией о встрече из календаря                                                                 |
 | `#book-flow`             | `frontend/src/app/features/book/`, `server/src/availability/`                                               | Выбор группы, участников, reactive form автопоиска по одной дате или диапазону, общие промежутки и бронирование |
@@ -119,11 +120,13 @@ app/
 │               ├── dashboard/pages/dashboard.page.{ts,html,scss}
 │               ├── availability/
 │               │   ├── components/availability-event-dialog/ # Диалог слота доступности
+│               │   ├── components/availability-day-details/  # Модальное окно расписания конкретного дня
+│               │   ├── components/availability-month-grid/   # Сетка month-view календаря
 │               │   ├── components/meeting-details-dialog/    # Просмотр встречи из календаря
+│               │   ├── models/availability-calendar.model.ts # Общие типы и константы календаря доступности
 │               │   ├── models/availability-event-dialog.model.ts
 │               │   └── pages/availability.page.{ts,html,scss}
 │               ├── book/
-│               │   ├── components/user-select/ # Выбор участника
 │               │   └── pages/book.page.{ts,html,scss}
 │               ├── meetings/pages/meetings.page.{ts,html,scss}
 │               ├── settings/pages/settings.page.{ts,html,scss}
@@ -248,9 +251,12 @@ app/
 ### 4. Month-view доступность — availability page
 
 - Основной термин в UI — **слот**, не “окно”.
+- `availability.page` должен оставаться orchestration-страницей: month-grid, day-details и диалог редактирования слота живут в отдельных feature-компонентах.
 - Основной способ редактирования доступности — клик по дню или компактная кнопка добавления внутри ячейки month-view календаря.
 - Диалог слота доступности поддерживает режимы `Одноразово` и `Повторять`.
 - Запланированные встречи пользователя отображаются в том же календаре отдельным типом chip. По клику открывается `meeting-details-dialog`. Прошедшие встречи определяются по `meeting.endTime < Date.now()` и показываются приглушёнными с зачёркнутыми временем и названием.
+- Повторяемые числовые значения month-view календаря, например лимит видимых chip, шаг повторения по неделям и доменные date-константы, хранить в `models/availability-calendar.model.ts`, а не в теле страницы.
+- Calendar math и conflict/merge логика слотов живут в `features/availability/utils/availability-calendar.utils.ts` и `features/availability/utils/availability-conflicts.utils.ts`; `availability.page` не должен снова разрастаться до монолита.
 - Не добавлять отдельные блоки ниже календаря для той же функциональности: создание и удаление слотов должны быть доступны из календаря.
 - При создании слота проверять пересечения с существующими календарными слотами:
   - разовый + разовый: предлагать объединить в один разовый слот;
@@ -262,7 +268,7 @@ app/
 ### Angular selectors
 
 - Все публичные selectors компонентов и UI-директив используют префикс `ccs`.
-- Примеры: `<ccs-navbar>`, `<ccs-user-select>`, `<ccs-availability-event-dialog>`, `ccsTooltip`.
+- Примеры: `<ccs-navbar>`, `<ccs-selectable-card-grid>`, `<ccs-availability-event-dialog>`, `ccsTooltip`.
 - Новый selector с префиксом `app` не добавлять.
 
 ### Runtime i18n
@@ -388,6 +394,8 @@ DATABASE_URL=mysql://app_user:change_me_mysql_password@localhost:3306/confcall_s
 - Не дублировать структуру объекта в нескольких местах, если её можно выразить одной общей TS-моделью.
 - Если один и тот же контракт используется в нескольких компонентах или сервисах, вынести его в отдельный `models/*.ts` файл, доступный всем потребителям.
 - Не держать общие DTO и UI-контракты внутри одного компонента, если они уже стали частью межкомпонентного взаимодействия.
+- Если page-компонент разрастается и начинает совмещать несколько самостоятельных UI-блоков, выносить их в feature-компоненты поменьше с явными `Input`/`Output`, а не наращивать страницу дальше.
+- Не оставлять магические числа и строки с доменным смыслом внутри компонентов и сервисов. Повторяемые или значимые значения выносить в именованные константы рядом с моделью или feature-контекстом.
 
 ### Правила форм
 
