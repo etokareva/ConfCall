@@ -4,9 +4,9 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { EMPTY } from "rxjs";
 import { catchError, finalize, tap } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AuthService } from "../../../core/services/auth.service";
-import { I18nService } from "../../../core/i18n/i18n.service";
-import { TranslatePipe } from "../../../core/i18n/translate.pipe";
+import { AuthService } from "../../../../core/services/auth.service";
+import { I18nService } from "../../../../core/i18n/i18n.service";
+import { TranslatePipe } from "../../../../core/i18n/translate.pipe";
 
 @Component({
   selector: "ccs-verify-email",

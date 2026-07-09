@@ -13,19 +13,23 @@ export const routes: Routes = [
     data: { titleKey: "route.login.title" },
     canMatch: [guestOnlyGuard],
     loadComponent: () =>
-      import("./features/login/pages/login.page").then((m) => m.LoginPage),
+      import("./features/login/pages/login/login.page").then(
+        (m) => m.LoginPage,
+      ),
   },
   {
     path: "invite",
     data: { titleKey: "route.invite.title" },
     loadComponent: () =>
-      import("./features/login/pages/invite.page").then((m) => m.InvitePage),
+      import("./features/login/pages/invite/invite.page").then(
+        (m) => m.InvitePage,
+      ),
   },
   {
     path: "verify-email",
     data: { titleKey: "route.verify_email.title" },
     loadComponent: () =>
-      import("./features/login/pages/verify-email.page").then(
+      import("./features/login/pages/verify-email/verify-email.page").then(
         (m) => m.VerifyEmailPage,
       ),
   },
@@ -33,7 +37,7 @@ export const routes: Routes = [
     path: "reset-password",
     data: { titleKey: "route.reset_password.title" },
     loadComponent: () =>
-      import("./features/login/pages/reset-password.page").then(
+      import("./features/login/pages/reset-password/reset-password.page").then(
         (m) => m.ResetPasswordPage,
       ),
   },
