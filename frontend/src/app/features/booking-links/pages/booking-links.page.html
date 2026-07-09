@@ -30,7 +30,7 @@
             <span>{{ "settings.link_title" | t }}</span>
             <span>{{ "settings.meeting_duration" | t }}</span>
             <span>{{ "settings.table.status" | t }}</span>
-            <span>{{ "settings.table.actions" | t }}</span>
+            <span></span>
           </div>
           @for (link of links; track link.id) {
           <article class="public-link-card">
@@ -64,58 +64,11 @@
               <button
                 type="button"
                 class="icon-action"
-                [ccsTooltip]="'common.open' | t"
-                [attr.aria-label]="'common.open' | t"
-                (click)="openPublicBookingLink(link.slug)"
-              >
-                <svg-icon name="external-link"></svg-icon>
-              </button>
-              <button
-                type="button"
-                class="icon-action"
                 [ccsTooltip]="'common.copy' | t"
                 [attr.aria-label]="'common.copy' | t"
                 (click)="copyPublicBookingLink(link.slug)"
               >
                 <svg-icon name="copy"></svg-icon>
-              </button>
-              <form
-                class="send-link-form"
-                [formGroup]="sendForm"
-                (ngSubmit)="sendPublicBookingLink(link)"
-              >
-                <label class="sr-only" [for]="'booking-link-email-' + link.id">
-                  {{ "groups.booking_link_email_label" | t }}
-                </label>
-                <input
-                  [id]="'booking-link-email-' + link.id"
-                  [name]="'booking-link-email-' + link.id"
-                  type="email"
-                  formControlName="email"
-                  [placeholder]="'groups.booking_link_email_placeholder' | t"
-                />
-                <button
-                  type="submit"
-                  class="icon-action"
-                  [disabled]="sendingLinkId() === link.id"
-                  [ccsTooltip]="'groups.booking_link_send' | t"
-                  [attr.aria-label]="'groups.booking_link_send' | t"
-                >
-                  <svg-icon name="send"></svg-icon>
-                </button>
-              </form>
-              <button
-                type="button"
-                class="icon-action"
-                [ccsTooltip]="
-                  (link.isActive ? 'common.disable' : 'common.enable') | t
-                "
-                [attr.aria-label]="
-                  (link.isActive ? 'common.disable' : 'common.enable') | t
-                "
-                (click)="togglePublicBookingLink(link)"
-              >
-                <svg-icon [name]="link.isActive ? 'power' : 'check'"></svg-icon>
               </button>
               <button
                 type="button"
