@@ -122,7 +122,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "availability.intersection.no_availability_some":
     "У части выбранных пользователей нет доступных слотов на этот день",
   "availability.intersection.range_too_long":
-    "Выберите диапазон не больше 31 дня",
+    "Выберите более короткий диапазон дат",
   "booking.conflict":
     "Это время уже занято другой встречей. Обновите варианты и выберите свободный слот.",
   "booking.link_inactive":
@@ -237,7 +237,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
     "Показаны общие интервалы выбранных участников без привязки к длительности встречи.",
   "book.show_options": "Показать варианты",
   "book.searching": "Ищем варианты...",
-  "book.duration": "Длительность",
+  "book.duration": "Длительность встречи",
   "book.duration_any": "Любая",
   "book.no_suitable_slots": "Подходящих слотов нет",
   "book.intersection_date": "Дата пересечения",

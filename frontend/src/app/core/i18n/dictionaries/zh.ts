@@ -113,7 +113,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
     "{name} 在这一天没有空闲时段",
   "availability.intersection.no_availability_some":
     "所选用户中有一部分在这一天没有空闲时段",
-  "availability.intersection.range_too_long": "请选择不超过 31 天的范围",
+  "availability.intersection.range_too_long": "请选择更短的日期范围",
   "booking.conflict": "该时间已被其他会议占用。请刷新选项并选择空闲时段。",
   "booking.link_inactive":
     "此预约链接当前未启用。如果组织者重新启用，请重试检查。",
@@ -218,7 +218,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
     "显示所选参与者共享的区间，不受会议时长影响。",
   "book.show_options": "显示选项",
   "book.searching": "搜索中...",
-  "book.duration": "时长",
+  "book.duration": "会议时长",
   "book.duration_any": "任意",
   "book.no_suitable_slots": "没有合适的时间段",
   "book.intersection_date": "交集日期",

@@ -124,7 +124,7 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
   "availability.intersection.no_availability_some":
     "Algunos de los usuarios elegidos no tienen huecos libres en este día",
   "availability.intersection.range_too_long":
-    "Selecciona un rango de no más de 31 días",
+    "Elige un intervalo de fechas más corto",
   "booking.conflict":
     "Esta hora ya está ocupada por otra reunión. Actualiza las opciones y elige un hueco libre.",
   "booking.link_inactive":
@@ -237,7 +237,7 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
     "Se muestran intervalos compartidos por los participantes elegidos sin depender de la duración de la reunión.",
   "book.show_options": "Mostrar opciones",
   "book.searching": "Buscando...",
-  "book.duration": "Duración",
+  "book.duration": "Duración de la reunión",
   "book.duration_any": "Cualquiera",
   "book.no_suitable_slots": "No hay horarios adecuados",
   "book.intersection_date": "Fecha del cruce",

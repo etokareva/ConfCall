@@ -123,7 +123,7 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
   "availability.intersection.no_availability_some":
     "Some of the selected users have no free slots on this day",
   "availability.intersection.range_too_long":
-    "Select a range of no more than 31 days",
+    "Choose a shorter date range",
   "booking.conflict":
     "This time is already booked by another meeting. Refresh the options and choose a free slot.",
   "booking.link_inactive":
@@ -235,7 +235,7 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
     "Shared intervals for the selected participants are shown without meeting duration.",
   "book.show_options": "Show options",
   "book.searching": "Searching...",
-  "book.duration": "Duration",
+  "book.duration": "Meeting duration",
   "book.duration_any": "Any",
   "book.no_suitable_slots": "No suitable slots",
   "book.intersection_date": "Intersection date",

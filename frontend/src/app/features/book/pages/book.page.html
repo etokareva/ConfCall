@@ -321,25 +321,11 @@
                     ></ccs-date-input>
                   </div>
                 </div>
-                @if (dateError()) {
-                <span id="book-date-error" class="field-error" role="alert"
-                  >{{ dateError() }}</span
-                >
-                } @else if (availableDates().length > 0) {
-                <div
-                  class="calendar-legend"
-                  tabindex="0"
-                  [ccsTooltip]="'book.available_date_tooltip' | t"
-                >
-                  <span class="legend-dot" aria-hidden="true"></span>
-                  <span>{{ "book.available_date_legend" | t }}</span>
-                </div>
-                }
               </div>
 
               <div class="form-row form-row--duration">
                 <label id="book-duration-label"
-                  >{{ "book.duration" | t }}</label
+                  >{{ "settings.meeting_duration" | t }}</label
                 >
                 <div class="duration-select">
                   <button
@@ -375,7 +361,7 @@
                     <div
                       class="select-menu"
                       role="listbox"
-                      [attr.aria-label]="'book.duration' | t"
+                      [attr.aria-label]="'settings.meeting_duration' | t"
                     >
                       @for (option of localizedDurationOptions(); track
                       option.value ?? option.label) {
@@ -394,6 +380,20 @@
                 </div>
               </div>
             </div>
+            @if (dateError()) {
+            <span id="book-date-error" class="field-error" role="alert"
+              >{{ dateError() }}</span
+            >
+            } @else if (availableDates().length > 0) {
+            <div
+              class="calendar-legend"
+              tabindex="0"
+              [ccsTooltip]="'book.available_date_tooltip' | t"
+            >
+              <span class="legend-dot" aria-hidden="true"></span>
+              <span>{{ "book.available_date_legend" | t }}</span>
+            </div>
+            }
           </section>
           } @if (activeStep() === 'params' && finding()) {
           <div
