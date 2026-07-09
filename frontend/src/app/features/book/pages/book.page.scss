@@ -443,14 +443,18 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: auto minmax(13rem, auto) minmax(9rem, 11rem);
-  gap: var(--space-3);
-  align-items: end;
+  grid-template-columns:
+    minmax(8.75rem, max-content)
+    minmax(0, max-content)
+    minmax(9rem, 11rem);
+  gap: var(--space-4);
+  align-items: start;
   justify-content: start;
 }
 
 .time-search-grid {
   width: 100%;
+  row-gap: var(--space-2);
 }
 
 .search-panel {
@@ -479,11 +483,13 @@
 
 .form-row--date {
   width: auto;
+  grid-template-rows: auto minmax(1.9rem, auto);
 }
 
 .form-row--mode,
 .form-row--duration {
-  align-self: end;
+  align-self: start;
+  padding-top: calc(var(--font-size-sm) * 1.35 + var(--space-2));
 }
 
 .form-row-head {
@@ -566,6 +572,7 @@
   align-items: center;
   gap: var(--space-2);
   width: fit-content;
+  min-height: 1.75rem;
   padding: 0.35rem 0.55rem;
   border: 1px solid var(--color-warning);
   border-radius: var(--radius-pill);
@@ -1011,6 +1018,11 @@
   .form-row ccs-date-input,
   .duration-select {
     width: 100%;
+  }
+
+  .form-row--mode,
+  .form-row--duration {
+    padding-top: 0;
   }
 
   .create-public-link-action {
