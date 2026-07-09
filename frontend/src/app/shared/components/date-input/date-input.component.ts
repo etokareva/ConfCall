@@ -10,6 +10,7 @@ import {
   ViewChild,
   forwardRef,
   inject,
+  signal,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import flatpickr from "flatpickr";
@@ -57,6 +58,7 @@ export class DateInputComponent
 
   value = "";
   disabled = false;
+  readonly isOpen = signal(false);
 
   private readonly i18n = inject(I18nService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -87,7 +89,11 @@ export class DateInputComponent
       onValueUpdate: (dates, dateText) =>
         this.updateValue(dateText, dates[0] ?? null),
       onClose: () => {
+        this.isOpen.set(false);
         this.onTouched();
+      },
+      onOpen: () => {
+        this.isOpen.set(true);
       },
       onReady: (_dates, _dateText, instance) => {
         prepareFlatpickrControls(instance, {

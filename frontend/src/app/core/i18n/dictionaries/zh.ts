@@ -380,6 +380,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
   "login.register_tab": "注册",
   "login.register_title": "创建账户",
   "login.registering": "注册中...",
+  "login.authentication_mode": "身份验证模式",
   "login.admin_divider": "或以管理员身份登录",
   "login.loading": "登录中...",
   "login.dev_admin": "以管理员身份登录",

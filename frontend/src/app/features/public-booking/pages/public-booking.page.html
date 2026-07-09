@@ -1,15 +1,17 @@
 <div class="public-booking">
   @if (loading()) {
-  <div class="center">{{ "common.loading" | t }}</div>
+  <div class="center" role="status" aria-live="polite">
+    {{ "common.loading" | t }}
+  </div>
   } @else if (error()) {
-  <div class="center error-panel">
+  <div class="center error-panel" role="alert">
     <h2>{{ errorMessage() }}</h2>
     <button type="button" class="btn-secondary" (click)="reloadLink()">
       {{ "common.retry" | t }}
     </button>
   </div>
   } @else {
-  <main class="booking-shell">
+  <section class="booking-shell" [attr.aria-busy]="loading() || finding()">
     <header class="booking-header">
       <div class="booking-identity">
         <div class="avatar group-avatar" aria-hidden="true">
@@ -233,6 +235,6 @@
       </div>
       }
     </section>
-  </main>
+  </section>
   }
 </div>

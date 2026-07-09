@@ -38,6 +38,10 @@
   &.outside {
     background: var(--color-bg);
     color: var(--color-text-faint);
+
+    .cell-day {
+      color: var(--color-text-muted);
+    }
   }
 
   &.today {

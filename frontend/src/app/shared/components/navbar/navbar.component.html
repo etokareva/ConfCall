@@ -8,8 +8,10 @@
       <a
         routerLink="/dashboard"
         routerLinkActive="active"
+        #dashboardLink="routerLinkActive"
         class="nav-icon-link"
         [attr.aria-label]="'nav.dashboard' | t"
+        [attr.aria-current]="dashboardLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.dashboard' | t"
       >
         <svg-icon name="home"></svg-icon>
@@ -18,8 +20,10 @@
       <a
         routerLink="/availability"
         routerLinkActive="active"
+        #availabilityLink="routerLinkActive"
         class="nav-icon-link"
         [attr.aria-label]="'nav.availability' | t"
+        [attr.aria-current]="availabilityLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.availability' | t"
       >
         <svg-icon name="calendar"></svg-icon>
@@ -28,8 +32,10 @@
       <a
         routerLink="/book"
         routerLinkActive="active"
+        #bookLink="routerLinkActive"
         class="nav-icon-link"
         [attr.aria-label]="'nav.book' | t"
+        [attr.aria-current]="bookLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.book' | t"
       >
         <svg-icon name="clock"></svg-icon>
@@ -38,8 +44,10 @@
       <a
         routerLink="/meetings"
         routerLinkActive="active"
+        #meetingsLink="routerLinkActive"
         class="nav-icon-link nav-meetings"
         [attr.aria-label]="'nav.meetings' | t"
+        [attr.aria-current]="meetingsLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.meetings' | t"
       >
         <svg-icon name="video"></svg-icon>
@@ -56,8 +64,10 @@
       <a
         routerLink="/booking-links"
         routerLinkActive="active"
+        #bookingLinksLink="routerLinkActive"
         class="nav-icon-link"
         [attr.aria-label]="'nav.booking_links' | t"
+        [attr.aria-current]="bookingLinksLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.booking_links' | t"
       >
         <svg-icon name="link"></svg-icon>
@@ -66,8 +76,10 @@
       <a
         routerLink="/groups"
         routerLinkActive="active"
+        #groupsLink="routerLinkActive"
         class="nav-icon-link"
         [attr.aria-label]="'nav.groups' | t"
+        [attr.aria-current]="groupsLink.isActive ? 'page' : null"
         [ccsTooltip]="'nav.groups' | t"
       >
         <svg-icon name="users"></svg-icon>
@@ -103,6 +115,8 @@
             class="popover-option"
             routerLink="/profile"
             routerLinkActive="active"
+            #profileLink="routerLinkActive"
+            [attr.aria-current]="profileLink.isActive ? 'page' : null"
           >
             <svg-icon name="user"></svg-icon>
             <span>{{ "nav.profile" | t }}</span>

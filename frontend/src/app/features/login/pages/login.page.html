@@ -6,11 +6,19 @@
       <p class="subtitle">{{ "login.subtitle" | t }}</p>
     </div>
 
-    <div class="mode-switch" role="tablist" aria-label="Authentication mode">
+    <div
+      class="mode-switch"
+      role="tablist"
+      [attr.aria-label]="'login.authentication_mode' | t"
+    >
       <button
         type="button"
         class="mode-button"
+        id="login-tab-sign-in"
+        role="tab"
         [class.active]="mode() === 'login'"
+        [attr.aria-selected]="mode() === 'login'"
+        [attr.aria-controls]="'login-panel-sign-in'"
         (click)="mode.set('login')"
       >
         {{ "login.sign_in_tab" | t }}
@@ -18,7 +26,11 @@
       <button
         type="button"
         class="mode-button"
+        id="login-tab-register"
+        role="tab"
         [class.active]="mode() === 'register'"
+        [attr.aria-selected]="mode() === 'register'"
+        [attr.aria-controls]="'login-panel-register'"
         (click)="mode.set('register')"
       >
         {{ "login.register_tab" | t }}
@@ -26,7 +38,11 @@
       <button
         type="button"
         class="mode-button"
+        id="login-tab-reset"
+        role="tab"
         [class.active]="mode() === 'reset'"
+        [attr.aria-selected]="mode() === 'reset'"
+        [attr.aria-controls]="'login-panel-reset'"
         (click)="mode.set('reset')"
       >
         {{ "login.reset_tab" | t }}
@@ -34,7 +50,14 @@
     </div>
 
     @if (mode() === 'login') {
-    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+    <form
+      id="login-panel-sign-in"
+      class="login-form"
+      role="tabpanel"
+      aria-labelledby="login-tab-sign-in"
+      [formGroup]="loginForm"
+      (ngSubmit)="login()"
+    >
       <h2>{{ "login.sign_in_title" | t }}</h2>
       <p class="helper">{{ "login.sign_in_help" | t }}</p>
 
@@ -71,7 +94,14 @@
       </button>
     </form>
     } @else if (mode() === 'register') {
-    <form class="login-form" [formGroup]="registerForm" (ngSubmit)="register()">
+    <form
+      id="login-panel-register"
+      class="login-form"
+      role="tabpanel"
+      aria-labelledby="login-tab-register"
+      [formGroup]="registerForm"
+      (ngSubmit)="register()"
+    >
       <h2>{{ "login.register_title" | t }}</h2>
       <p class="helper">{{ "login.register_help" | t }}</p>
 
@@ -127,7 +157,10 @@
     </form>
     } @else {
     <form
+      id="login-panel-reset"
       class="login-form"
+      role="tabpanel"
+      aria-labelledby="login-tab-reset"
       [formGroup]="resetRequestForm"
       (ngSubmit)="requestPasswordReset()"
     >

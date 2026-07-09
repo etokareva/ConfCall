@@ -411,6 +411,7 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
   "login.register_tab": "Register",
   "login.register_title": "Create an account",
   "login.registering": "Registering...",
+  "login.authentication_mode": "Authentication mode",
   "login.admin_divider": "or sign in as an administrator",
   "login.loading": "Signing in...",
   "login.dev_admin": "Sign in as administrator",

@@ -418,6 +418,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "login.register_tab": "Регистрация",
   "login.register_title": "Создать аккаунт",
   "login.registering": "Регистрируем...",
+  "login.authentication_mode": "Режим аутентификации",
   "login.admin_divider": "или войдите как администратор",
   "login.loading": "Входим...",
   "login.dev_admin": "Войти как администратор",

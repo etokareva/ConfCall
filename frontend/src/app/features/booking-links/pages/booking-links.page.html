@@ -1,5 +1,5 @@
 <ccs-navbar></ccs-navbar>
-<main id="main-content" class="page-container">
+<div class="page-container">
   <section class="section workspace-section booking-links-page">
     <div class="section-heading">
       <div>
@@ -11,12 +11,12 @@
     <div class="workspace-main">
       <section class="workspace-panel links-panel">
         @if (booking.linksLoading$ | async) {
-        <div class="state-card loading-state compact-state">
+        <div class="state-card loading-state compact-state" role="status" aria-live="polite">
           <strong>{{ "settings.loading_links" | t }}</strong>
           <span>{{ "settings.loading_links_hint" | t }}</span>
         </div>
         } @else { @if (booking.linksError$ | async; as linksError) {
-        <div class="state-card error-state compact-state">
+        <div class="state-card error-state compact-state" role="alert">
           <strong>{{ "settings.links_load_error" | t }}</strong>
           <span>{{ linksError | t }}</span>
           <button type="button" class="btn-retry" (click)="booking.loadLinks()">
@@ -83,4 +83,4 @@
       </section>
     </div>
   </section>
-</main>
+</div>

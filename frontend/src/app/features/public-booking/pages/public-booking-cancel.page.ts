@@ -12,7 +12,7 @@ import { IconComponent } from "../../../shared/components/icon/icon.component";
   standalone: true,
   imports: [CommonModule, RouterLink, TranslatePipe, IconComponent],
   template: `
-    <main class="public-cancel">
+    <section class="public-cancel" [attr.aria-busy]="loading()">
       <section class="cancel-card">
         @if (loading()) {
           <span class="status-icon loading">
@@ -49,7 +49,7 @@ import { IconComponent } from "../../../shared/components/icon/icon.component";
         }
         <a routerLink="/" class="home-link">{{ "nav.home" | t }}</a>
       </section>
-    </main>
+    </section>
   `,
   styles: [
     `

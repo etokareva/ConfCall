@@ -8,6 +8,8 @@
     [disabled]="disabled"
     [attr.aria-label]="label | t"
     [attr.aria-describedby]="describedBy || null"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
     (input)="onInput($event)"
     (click)="openPickerFromInput()"
     (focus)="openPickerFromInput()"
@@ -18,6 +20,8 @@
     class="icon-button date-picker-toggle date-toggle"
     [disabled]="disabled"
     [attr.aria-label]="openLabel | t"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="isOpen()"
     (mousedown)="openPicker($event)"
   >
     <svg-icon name="calendar"></svg-icon>

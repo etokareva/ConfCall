@@ -97,7 +97,7 @@
 
 .selectable-card-subtitle {
   @extend %truncate-text;
-  color: var(--color-text-dim);
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
 
