@@ -204,7 +204,7 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
   "book.available_date_legend": "El amarillo marca fechas con tiempo libre",
   "book.available_date_tooltip":
     "Para un participante son fechas con sus huecos libres. Para varios participantes son fechas con coincidencias comunes.",
-  "book.book_slot": "Reservar hueco",
+  "book.book_slot": "Crear reunión",
   "book.book_slot_tooltip": "Crear una reunión en este intervalo libre",
   "book.clear_selection": "Quitar selección",
   "book.group": "Grupo",
@@ -667,6 +667,11 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
   "book.dialog.title": "Reservar reunión",
   "book.dialog.meeting_title": "Título",
   "book.dialog.description": "Descripción",
+  "book.dialog.create_link_action": "Crear enlace",
+  "book.dialog.create_meeting_action": "Crear reunión",
+  "book.dialog.meeting_title_full": "Crear reunión",
+  "book.dialog.public_link_title": "Crear enlace",
+  "book.dialog.title_field": "Título",
   "groups.description":
     "Crea grupos, añade participantes por email y envía invitaciones para que nuevos usuarios se unan al grupo elegido.",
   "groups.name_tooltip":

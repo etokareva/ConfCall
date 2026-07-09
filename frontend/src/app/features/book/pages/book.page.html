@@ -214,7 +214,7 @@
               <h3>{{ "book.step.params.title" | t }}</h3>
               <button
                 type="button"
-                class="btn-secondary create-public-link-action"
+                class="btn-primary create-public-link-action"
                 [disabled]="creatingLink() || !hasIntersections()"
                 [ccsTooltip]="
                   hasIntersections()
@@ -224,7 +224,7 @@
                 (click)="openPublicBookingLinkDialog()"
               >
                 <svg-icon name="link"></svg-icon>
-                <span>{{ "settings.create_link" | t }}</span>
+                <span>{{ "book.dialog.create_link_action" | t }}</span>
               </button>
             </div>
             <div class="flow-summary">

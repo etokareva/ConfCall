@@ -202,7 +202,7 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
   "book.available_date_legend": "Yellow marks dates with free time",
   "book.available_date_tooltip":
     "For one participant, these are dates with their free slots. For several participants, these are dates with shared overlaps.",
-  "book.book_slot": "Book slot",
+  "book.book_slot": "Create meeting",
   "book.book_slot_tooltip": "Create a meeting on this free interval",
   "book.clear_selection": "Clear selection",
   "book.group": "Group",
@@ -649,6 +649,11 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
   "book.dialog.title": "Book meeting",
   "book.dialog.meeting_title": "Title",
   "book.dialog.description": "Description",
+  "book.dialog.create_link_action": "Create link",
+  "book.dialog.create_meeting_action": "Create meeting",
+  "book.dialog.meeting_title_full": "Create meeting",
+  "book.dialog.public_link_title": "Create link",
+  "book.dialog.title_field": "Title",
   "groups.description":
     "Create work groups, add registered members by email, and send invitations that add new users to the selected group.",
   "groups.name_tooltip":

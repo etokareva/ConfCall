@@ -204,7 +204,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "book.available_date_legend": "Жёлтым отмечены даты со свободным временем",
   "book.available_date_tooltip":
     "Для одного участника это дни с его свободными слотами. Для нескольких участников это дни с общими пересечениями.",
-  "book.book_slot": "Забронировать слот",
+  "book.book_slot": "Создать встречу",
   "book.book_slot_tooltip": "Создать встречу на этом свободном интервале",
   "book.clear_selection": "Снять выбор",
   "book.group": "Группа",
@@ -665,6 +665,11 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "book.dialog.title": "Забронировать встречу",
   "book.dialog.meeting_title": "Название",
   "book.dialog.description": "Описание",
+  "book.dialog.create_link_action": "Создать ссылку",
+  "book.dialog.create_meeting_action": "Создать встречу",
+  "book.dialog.meeting_title_full": "Создать встречу",
+  "book.dialog.public_link_title": "Создать ссылку",
+  "book.dialog.title_field": "Название",
   "groups.description":
     "Создавайте рабочие группы, добавляйте зарегистрированных участников по email и отправляйте приглашения новым пользователям в выбранную группу.",
   "groups.name_tooltip":

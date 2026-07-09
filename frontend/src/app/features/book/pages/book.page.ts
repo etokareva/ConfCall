@@ -28,15 +28,10 @@ import { DateInputComponent } from "../../../shared/components/date-input/date-i
 import { UserSelectComponent } from "../components/user-select/user-select.component";
 import { SelectableCardGridComponent } from "../../../shared/components/selectable-card-grid/selectable-card-grid.component";
 import { BookingDialogComponent } from "../components/booking-dialog/booking-dialog.component";
-import { PublicBookingLinkDialogComponent } from "../components/public-booking-link-dialog/public-booking-link-dialog.component";
 import {
   BookingDialogData,
   BookingDialogResult,
 } from "../models/booking-dialog.model";
-import {
-  PublicBookingLinkDialogData,
-  PublicBookingLinkDialogResult,
-} from "../models/public-booking-link-dialog.model";
 import { AvailabilityService } from "../../../core/services/availability.service";
 import { MeetingService } from "../../../core/services/meeting.service";
 import { GroupService } from "../../../core/services/group.service";
@@ -770,7 +765,9 @@ export class BookPage {
       return;
     }
 
-    const data: PublicBookingLinkDialogData = {
+    const data: BookingDialogData = {
+      mode: "public-link",
+      dateLabel: this.selectedPeriodLabel(),
       defaultTitle: group.name,
       defaultDescription: "",
       defaultDurationMinutes: this.duration() ?? 30,
@@ -779,10 +776,10 @@ export class BookPage {
     };
 
     const dialogRef = this.dialog.open<
-      PublicBookingLinkDialogResult,
-      PublicBookingLinkDialogData,
-      PublicBookingLinkDialogComponent
-    >(PublicBookingLinkDialogComponent, {
+      BookingDialogResult,
+      BookingDialogData,
+      BookingDialogComponent
+    >(BookingDialogComponent, {
       data,
       hasBackdrop: true,
       ariaModal: true,
@@ -796,9 +793,7 @@ export class BookPage {
 
     dialogRef.closed
       .pipe(
-        filter((result): result is PublicBookingLinkDialogResult =>
-          Boolean(result),
-        ),
+        filter((result): result is BookingDialogResult => Boolean(result)),
         tap(() => this.creatingLink.set(true)),
         switchMap((result) =>
           this.booking.createLink({
@@ -806,7 +801,7 @@ export class BookPage {
             participantIds,
             title: result.title,
             description: result.description,
-            durationMinutes: result.durationMinutes,
+            durationMinutes: result.durationMinutes ?? 30,
           }),
         ),
         tap((link) => {
@@ -1068,6 +1063,7 @@ export class BookPage {
       BookingDialogComponent
     >(BookingDialogComponent, {
       data: {
+        mode: "meeting",
         dateLabel: this.selectedDateLabel(dateIso),
         start: slot.start,
         end: slot.end,

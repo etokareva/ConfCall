@@ -187,7 +187,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
   "book.available_date_legend": "黄色标记有空闲时间的日期",
   "book.available_date_tooltip":
     "选择一位参与者时，表示该参与者有空闲时段的日期。选择多位参与者时，表示所有人都有共同空闲时间的日期。",
-  "book.book_slot": "预订时段",
+  "book.book_slot": "创建会议",
   "book.book_slot_tooltip": "在这个空闲区间创建会议",
   "book.clear_selection": "取消选择",
   "book.group": "小组",
@@ -583,6 +583,11 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
   "book.dialog.title": "预约会议",
   "book.dialog.meeting_title": "标题",
   "book.dialog.description": "描述",
+  "book.dialog.create_link_action": "创建链接",
+  "book.dialog.create_meeting_action": "创建会议",
+  "book.dialog.meeting_title_full": "创建会议",
+  "book.dialog.public_link_title": "创建链接",
+  "book.dialog.title_field": "标题",
   "book.public_link_dialog.title": "创建公开链接",
   "book.public_link_unavailable_message":
     "请先选择小组和参与者，并等待系统找到共同可用时间。",

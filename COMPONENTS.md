@@ -35,13 +35,12 @@
 
 ## Feature Components
 
-| Компонент                        | Путь                                                          | Назначение                                                                                                         | Возможность переиспользования                     |
-| -------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| `ccs-user-select`                | `features/book/components/user-select/`                       | Обёртка выбора участников группы над `ccs-selectable-card-grid`                                                    | Feature-specific mapping `UserWithAvailability`   |
-| `ccs-booking-dialog`             | `features/book/components/booking-dialog/`                    | Подтверждение создания встречи с тем же контекстом группы, участников, даты и длительности, что у публичной ссылки | Feature-specific, использует `ccs-modal-shell`    |
-| `ccs-public-booking-link-dialog` | `features/book/components/public-booking-link-dialog/`        | Создание публичной ссылки бронирования с контекстом группы, участников и длительности                              | Feature-specific, использует `ccs-modal-shell`    |
-| `ccs-availability-event-dialog`  | `features/availability/components/availability-event-dialog/` | Создание/редактирование слота доступности                                                                          | Feature-specific, использует shared form controls |
-| `ccs-meeting-details-dialog`     | `features/availability/components/meeting-details-dialog/`    | Просмотр деталей встречи из календаря доступности                                                                  | Можно переиспользовать на странице встреч         |
+| Компонент                       | Путь                                                          | Назначение                                                                                                           | Возможность переиспользования                     |
+| ------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `ccs-user-select`               | `features/book/components/user-select/`                       | Обёртка выбора участников группы над `ccs-selectable-card-grid`                                                      | Feature-specific mapping `UserWithAvailability`   |
+| `ccs-booking-dialog`            | `features/book/components/booking-dialog/`                    | Общий диалог для создания внутренней встречи и публичной ссылки бронирования с единым контекстом группы и участников | Feature-specific, использует `ccs-modal-shell`    |
+| `ccs-availability-event-dialog` | `features/availability/components/availability-event-dialog/` | Создание/редактирование слота доступности                                                                            | Feature-specific, использует shared form controls |
+| `ccs-meeting-details-dialog`    | `features/availability/components/meeting-details-dialog/`    | Просмотр деталей встречи из календаря доступности                                                                    | Можно переиспользовать на странице встреч         |
 
 ## Потенциальные Выносы
 
