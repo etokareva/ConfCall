@@ -6,7 +6,7 @@ import {
   Inject,
   NotFoundException,
 } from '@nestjs/common';
-import { eq, and, gt, inArray, lt, or } from 'drizzle-orm';
+import { eq, and, gt, inArray, lt } from 'drizzle-orm';
 import { MySql2Database } from 'drizzle-orm/mysql2';
 import { nanoid } from 'nanoid';
 import { DRIZZLE_TOKEN } from '../db/db.module';
@@ -63,28 +63,15 @@ export class BookingService {
   }
 
   async getMyLinks(userId: number) {
-    const memberships = await this.db
-      .select({ groupId: schema.groupMembers.groupId })
-      .from(schema.groupMembers)
-      .where(eq(schema.groupMembers.userId, userId));
-    const groupIds = memberships.map((membership) => membership.groupId);
-    const where =
-      groupIds.length > 0
-        ? or(
-            eq(schema.bookingLinks.userId, userId),
-            inArray(schema.bookingLinks.groupId, groupIds),
-          )
-        : eq(schema.bookingLinks.userId, userId);
-
     return this.db
       .select()
       .from(schema.bookingLinks)
-      .where(where)
+      .where(eq(schema.bookingLinks.userId, userId))
       .orderBy(schema.bookingLinks.createdAt);
   }
 
   async deleteLink(userId: number, id: number) {
-    await this.ensureUserCanUseLink(userId, id);
+    await this.ensureUserOwnsLink(userId, id);
     await this.db
       .delete(schema.bookingLinkParticipants)
       .where(eq(schema.bookingLinkParticipants.bookingLinkId, id));
@@ -95,7 +82,7 @@ export class BookingService {
   }
 
   async toggleLink(userId: number, id: number) {
-    const link = await this.ensureUserCanUseLink(userId, id);
+    const link = await this.ensureUserOwnsLink(userId, id);
     const isActive = !link.isActive;
     await this.db
       .update(schema.bookingLinks)
@@ -110,7 +97,7 @@ export class BookingService {
   }
 
   async sendLink(userId: number, id: number, dto: SendBookingLinkDto) {
-    const link = await this.ensureUserCanUseLink(userId, id);
+    const link = await this.ensureUserOwnsLink(userId, id);
     if (!link || !link.isActive) throw new NotFoundException('Link not found');
     if (!link.groupId) throw new BadRequestException('booking.group_required');
 
@@ -418,19 +405,14 @@ export class BookingService {
     }
   }
 
-  private async ensureUserCanUseLink(userId: number, id: number) {
+  private async ensureUserOwnsLink(userId: number, id: number) {
     const [link] = await this.db
       .select()
       .from(schema.bookingLinks)
       .where(eq(schema.bookingLinks.id, id))
       .limit(1);
     if (!link) throw new NotFoundException('Link not found');
-    if (!link.groupId) {
-      if (link.userId !== userId) throw new NotFoundException('Link not found');
-      return link;
-    }
-
-    await this.ensureUserInGroup(userId, link.groupId);
+    if (link.userId !== userId) throw new NotFoundException('Link not found');
     return link;
   }
 
