@@ -26,6 +26,7 @@ import {
 } from './dto/auth.dto';
 import { AuthenticatedUser } from './auth-user.interface';
 import { EmailService } from './email.service';
+import { CacheInvalidationService } from '../cache/cache-invalidation.service';
 
 const DEV_TOKEN_PREFIX = 'dev-token:';
 const DEV_USER = {
@@ -40,6 +41,7 @@ export class AuthService {
   constructor(
     @Inject(DRIZZLE_TOKEN) private readonly db: MySql2Database<typeof schema>,
     private readonly emailService: EmailService,
+    private readonly cacheInvalidation: CacheInvalidationService,
   ) {}
 
   async devLogin() {
@@ -617,6 +619,7 @@ export class AuthService {
       userId,
       role: 'member',
     });
+    await this.cacheInvalidation.invalidateIntersections();
   }
 
   private appUrl() {

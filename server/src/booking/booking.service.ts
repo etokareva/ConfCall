@@ -22,6 +22,7 @@ import {
   AvailableSlot,
   IntersectionResponse,
 } from '../availability/dto/availability.dto';
+import { CacheInvalidationService } from '../cache/cache-invalidation.service';
 
 @Injectable()
 export class BookingService {
@@ -29,6 +30,7 @@ export class BookingService {
     @Inject(DRIZZLE_TOKEN) private readonly db: MySql2Database<typeof schema>,
     private readonly video: VideoService,
     private readonly email: EmailService,
+    private readonly cacheInvalidation: CacheInvalidationService,
   ) {}
 
   async createLink(userId: number, dto: CreateBookingLinkDto) {
@@ -192,6 +194,7 @@ export class BookingService {
       },
     ];
     await this.db.insert(schema.meetingParticipants).values(participants);
+    await this.cacheInvalidation.invalidateIntersections();
     await this.email.sendPublicBookingConfirmationEmail({
       email: guestEmail,
       name: guestName,
@@ -249,6 +252,7 @@ export class BookingService {
         cancelledAt: new Date(),
       })
       .where(eq(schema.meetings.id, participant.meetingId));
+    await this.cacheInvalidation.invalidateIntersections();
     const participants = await this.db
       .select()
       .from(schema.meetingParticipants)

@@ -17,6 +17,7 @@ import {
   UpdateGroupDto,
 } from './dto/group.dto';
 import { EmailService } from '../auth/email.service';
+import { CacheInvalidationService } from '../cache/cache-invalidation.service';
 
 @Injectable()
 export class GroupService {
@@ -25,6 +26,7 @@ export class GroupService {
   constructor(
     @Inject(DRIZZLE_TOKEN) private readonly db: MySql2Database<typeof schema>,
     private readonly emailService: EmailService,
+    private readonly cacheInvalidation: CacheInvalidationService,
   ) {}
 
   async getMyGroups(userId: number) {
@@ -78,6 +80,7 @@ export class GroupService {
       userId,
       role: 'owner',
     });
+    await this.cacheInvalidation.invalidateIntersections();
 
     const groups = await this.getMyGroups(userId);
     const group = groups.find((item) => item.id === groupId);
@@ -320,6 +323,7 @@ export class GroupService {
           eq(schema.groupMembers.userId, memberId),
         ),
       );
+    await this.cacheInvalidation.invalidateIntersections();
 
     return this.getGroupMembers(userId, groupId);
   }
@@ -465,6 +469,7 @@ export class GroupService {
     if (existing) return existing;
 
     await this.db.insert(schema.groupMembers).values({ groupId, userId, role });
+    await this.cacheInvalidation.invalidateIntersections();
   }
 
   private normalizeEmails(emails: string[]) {

@@ -11,6 +11,7 @@ import * as schema from '../../../db/schema';
 import { CreateMeetingDto } from './dto/meeting.dto';
 import { VideoService } from '../video/video.service';
 import { EmailService } from '../auth/email.service';
+import { CacheInvalidationService } from '../cache/cache-invalidation.service';
 
 @Injectable()
 export class MeetingService {
@@ -18,6 +19,7 @@ export class MeetingService {
     @Inject(DRIZZLE_TOKEN) private readonly db: MySql2Database<typeof schema>,
     private readonly video: VideoService,
     private readonly email: EmailService,
+    private readonly cacheInvalidation: CacheInvalidationService,
   ) {}
 
   async create(organizerId: number, dto: CreateMeetingDto) {
@@ -82,6 +84,7 @@ export class MeetingService {
         status: 'confirmed' as const,
       })),
     );
+    await this.cacheInvalidation.invalidateIntersections();
     const createdMeeting = await this.getMeetingWithParticipants(mId);
     await this.notifyMeetingParticipants(createdMeeting, 'created');
     return createdMeeting;
@@ -167,6 +170,7 @@ export class MeetingService {
         cancelledAt: new Date(),
       })
       .where(eq(schema.meetings.id, id));
+    await this.cacheInvalidation.invalidateIntersections();
     const cancelledMeeting = await this.getMeetingWithParticipants(id);
     await this.notifyMeetingParticipants(
       cancelledMeeting,
@@ -204,6 +208,7 @@ export class MeetingService {
       .update(schema.meetingParticipants)
       .set({ status: 'declined' })
       .where(eq(schema.meetingParticipants.id, participant.id));
+    await this.cacheInvalidation.invalidateIntersections();
 
     const updatedMeeting = await this.getMeetingWithParticipants(id);
     const [user] = await this.db
