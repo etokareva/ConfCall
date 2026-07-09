@@ -60,112 +60,16 @@
           </div>
         </div>
       </div>
-      <div
-        class="calendar-grid"
-        [attr.aria-label]="'availability.month_calendar' | t"
-      >
-        @for (day of weekdays; track day.index) {
-        <div class="weekday-head">{{ day.shortLabelKey | t }}</div>
-        } @for (cell of monthCells(); track cell.dateKey) {
-        <div
-          class="month-cell"
-          [class.outside]="!cell.inMonth"
-          [class.today]="cell.isToday"
-          [class.has-meeting]="cell.hasMeeting"
-          (click)="openDayDetails(cell.date, $event)"
-        >
-          <div class="cell-head">
-            <button
-              type="button"
-              class="cell-day"
-              [attr.data-calendar-date]="cell.dateKey"
-              [attr.tabindex]="isFocusedDate(cell.dateKey) ? '0' : '-1'"
-              [attr.aria-label]="
-                ('availability.open_day_schedule' | t) +
-                ' ' +
-                formatShortDate(cell.date)
-              "
-              (focus)="setFocusedDate(cell.dateKey)"
-              (keydown)="handleCalendarDayKeydown($event, cell)"
-              (click)="openDayDetails(cell.date, $event)"
-            >
-              {{ cell.dayNumber }}
-            </button>
-            <span class="cell-head-actions">
-              @if (cell.hasMeeting) {
-              <span
-                class="meeting-day-marker"
-                [ccsTooltip]="'availability.day_has_meeting_tooltip' | t"
-                role="img"
-                [attr.aria-label]="'availability.day_has_meeting' | t"
-              >
-                <svg-icon name="video"></svg-icon>
-              </span>
-              }
-              <button
-                type="button"
-                class="add-day-action"
-                [attr.aria-label]="
-                  ('availability.add_slot_on' | t) +
-                  ' ' +
-                  formatShortDate(cell.date)
-                "
-                [ccsTooltip]="
-                  ('availability.add_slot_tooltip' | t) +
-                  ' ' +
-                  formatShortDate(cell.date)
-                "
-                (click)="openDateDialog(cell.date, $event)"
-              >
-                +
-              </button>
-            </span>
-          </div>
-
-          <div class="cell-events">
-            @if (cell.items.length > 0) { @for (item of cell.visibleItems; track
-            $index) {
-            <div
-              class="event-chip"
-              [class.weekly-event]="item.kind === 'weekly'"
-              [class.date-event]="item.kind === 'date'"
-              [class.meeting-event]="item.kind === 'meeting'"
-              [class.past-meeting]="item.kind === 'meeting' && item.isPast"
-              [ccsTooltip]="item.tooltip"
-              [attr.aria-label]="item.tooltip + ', ' + item.timeRange"
-              [attr.role]="item.kind === 'meeting' ? 'button' : 'button'"
-              [attr.tabindex]="'0'"
-              (click)="openCalendarItem(item, cell.date, $event)"
-              (keydown.enter)="openCalendarItem(item, cell.date, $event)"
-              (keydown.space)="openCalendarItem(item, cell.date, $event)"
-            >
-              <span class="event-dot"></span>
-              <div>
-                <strong>{{ item.timeRange }}</strong>
-                @if (item.title) {
-                <small>{{ item.title }}</small>
-                }
-              </div>
-            </div>
-            } @if (cell.hiddenItemsCount > 0) {
-            <span
-              class="more-items"
-              [ccsTooltip]="
-                ('availability.more_items_prefix' | t) +
-                ' ' +
-                cell.hiddenItemsCount +
-                ' ' +
-                countLabel(cell.hiddenItemsCount) +
-                '. ' +
-                ('availability.more_items_tooltip' | t)
-              "
-              >+{{ cell.hiddenItemsCount }}</span
-            >
-            } }
-          </div>
-        </div>
-        }
-      </div>
+      <ccs-availability-month-grid
+        [weekdays]="weekdays"
+        [monthCells]="monthCells()"
+        [focusedDateKey]="focusedDateKey()"
+        (dayOpen)="openDayDetails($event)"
+        (dayAdd)="openDateDialog($event)"
+        (dateFocus)="setFocusedDate($event)"
+        (dateKeydown)="handleCalendarDayKeydown($event.event, $event.cell)"
+        (itemOpen)="openCalendarItem($event.item, $event.date, $event.event)"
+      ></ccs-availability-month-grid>
     </section>
 
     @if (editorOpen() && editorData(); as editor) {
@@ -181,121 +85,14 @@
     } @if (dayDetailsOpen() && selectedDay(); as day) {
     <div class="editor-backdrop" (click)="closeDayDetails()">
       <aside class="day-details-shell" (click)="$event.stopPropagation()">
-        <ccs-modal-shell
-          eyebrow="availability.day_schedule"
-          [title]="formatShortDate(day.date)"
-          [subtitle]="day.items.length + ' ' + countLabel(day.items.length)"
+        <ccs-availability-day-details
+          [day]="day"
           (close)="closeDayDetails()"
-        >
-          <div class="day-items">
-            @if (day.items.length > 0) { @for (item of day.items; track $index)
-            {
-            <article
-              class="day-item"
-              [class.meeting-item]="item.kind === 'meeting'"
-              [class.past-meeting]="item.kind === 'meeting' && item.isPast"
-              [class.clickable-item]="item.kind !== 'meeting'"
-              [attr.role]="item.kind === 'meeting' ? null : 'button'"
-              [attr.tabindex]="item.kind === 'meeting' ? null : 0"
-              [attr.aria-label]="item.tooltip + ', ' + item.timeRange"
-              (click)="openCalendarItem(item, day.date, $event)"
-              (keydown.enter)="openCalendarItem(item, day.date, $event)"
-              (keydown.space)="openCalendarItem(item, day.date, $event)"
-            >
-              <span class="event-dot"></span>
-              <div class="day-item-main">
-                <strong>{{ item.timeRange }}</strong>
-                <span>{{ item.tooltip }}</span>
-                @if (item.title) {
-                <small>{{ item.title }}</small>
-                }
-              </div>
-              <div class="day-item-actions">
-                @if (item.kind === "meeting") {
-                <button
-                  type="button"
-                  class="btn-secondary"
-                  (click)="openMeetingDialog(item, $event)"
-                >
-                  {{ "common.open" | t }}
-                </button>
-                } @else if (item.kind === "date") {
-                <button
-                  type="button"
-                  class="icon-button btn-secondary"
-                  [ccsTooltip]="'common.edit' | t"
-                  [attr.aria-label]="'common.edit' | t"
-                  (click)="openDateDialogForEvent(item, $event)"
-                >
-                  <svg-icon name="edit"></svg-icon>
-                </button>
-                <button
-                  type="button"
-                  class="icon-button btn-danger"
-                  [ccsTooltip]="'common.delete' | t"
-                  [attr.aria-label]="'common.delete' | t"
-                  (click)="removeCalendarItem(item, $event)"
-                >
-                  <svg-icon name="trash"></svg-icon>
-                </button>
-                } @else {
-                <button
-                  type="button"
-                  class="icon-button btn-secondary"
-                  [ccsTooltip]="'common.edit' | t"
-                  [attr.aria-label]="'common.edit' | t"
-                  (click)="openWeeklySlotDialog(item, day.date, $event)"
-                >
-                  <svg-icon name="edit"></svg-icon>
-                </button>
-                <button
-                  type="button"
-                  class="icon-button btn-danger"
-                  [ccsTooltip]="'common.delete' | t"
-                  [attr.aria-label]="'common.delete' | t"
-                  (click)="removeCalendarItem(item, $event)"
-                >
-                  <svg-icon name="trash"></svg-icon>
-                </button>
-                }
-              </div>
-            </article>
-            } } @else {
-            <div class="state-card empty-state">
-              <strong>{{ "availability.day_empty_title" | t }}</strong>
-              <span>{{ "availability.day_empty_message" | t }}</span>
-              <button
-                type="button"
-                class="btn-primary empty-state-action"
-                [ccsTooltip]="
-                  ('availability.add_free_slot_tooltip' | t) +
-                  ' ' +
-                  formatShortDate(day.date)
-                "
-                (click)="openDateDialog(day.date, $event)"
-              >
-                {{ "availability.add_slot" | t }}
-              </button>
-            </div>
-            }
-          </div>
-          @if (day.items.length > 0) {
-          <div modalFooter class="day-details-footer">
-            <button
-              type="button"
-              class="btn-primary"
-              [ccsTooltip]="
-                ('availability.add_free_slot_tooltip' | t) +
-                ' ' +
-                formatShortDate(day.date)
-              "
-              (click)="openDateDialog(day.date, $event)"
-            >
-              {{ "availability.add_slot" | t }}
-            </button>
-          </div>
-          }
-        </ccs-modal-shell>
+          (addSlot)="openDateDialog($event)"
+          (itemOpen)="openCalendarItem($event.item, $event.date, $event.event)"
+          (itemRemove)="removeCalendarItem($event.item, $event.event)"
+          (meetingOpen)="openMeetingDialog($event.item, $event.event)"
+        ></ccs-availability-day-details>
       </aside>
     </div>
     }

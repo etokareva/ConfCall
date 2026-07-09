@@ -1,0 +1,98 @@
+<div
+  class="calendar-grid"
+  [attr.aria-label]="'availability.month_calendar' | t"
+>
+  @for (day of weekdays; track day.index) {
+  <div class="weekday-head">{{ day.shortLabelKey | t }}</div>
+  } @for (cell of monthCells; track cell.dateKey) {
+  <div
+    class="month-cell"
+    [class.outside]="!cell.inMonth"
+    [class.today]="cell.isToday"
+    [class.has-meeting]="cell.hasMeeting"
+    (click)="openDay(cell.date, $event)"
+  >
+    <div class="cell-head">
+      <button
+        type="button"
+        class="cell-day"
+        [attr.data-calendar-date]="cell.dateKey"
+        [attr.tabindex]="isFocusedDate(cell.dateKey) ? '0' : '-1'"
+        [attr.aria-label]="
+          ('availability.open_day_schedule' | t) + ' ' + formatShortDate(cell.date)
+        "
+        (focus)="dateFocus.emit(cell.dateKey)"
+        (keydown)="dateKeydown.emit({ event: $event, cell })"
+        (click)="openDay(cell.date, $event)"
+      >
+        {{ cell.dayNumber }}
+      </button>
+      <span class="cell-head-actions">
+        @if (cell.hasMeeting) {
+        <span
+          class="meeting-day-marker"
+          [ccsTooltip]="'availability.day_has_meeting_tooltip' | t"
+          role="img"
+          [attr.aria-label]="'availability.day_has_meeting' | t"
+        >
+          <svg-icon name="video"></svg-icon>
+        </span>
+        }
+        <button
+          type="button"
+          class="add-day-action"
+          [attr.aria-label]="
+            ('availability.add_slot_on' | t) + ' ' + formatShortDate(cell.date)
+          "
+          [ccsTooltip]="
+            ('availability.add_slot_tooltip' | t) + ' ' + formatShortDate(cell.date)
+          "
+          (click)="addDay(cell.date, $event)"
+        >
+          +
+        </button>
+      </span>
+    </div>
+
+    <div class="cell-events">
+      @if (cell.items.length > 0) { @for (item of cell.visibleItems; track $index) {
+      <div
+        class="event-chip"
+        [class.weekly-event]="item.kind === 'weekly'"
+        [class.date-event]="item.kind === 'date'"
+        [class.meeting-event]="item.kind === 'meeting'"
+        [class.past-meeting]="item.kind === 'meeting' && item.isPast"
+        [ccsTooltip]="item.tooltip"
+        [attr.aria-label]="item.tooltip + ', ' + item.timeRange"
+        tabindex="0"
+        (click)="openItem(item, cell.date, $event)"
+        (keydown.enter)="openItem(item, cell.date, $event)"
+        (keydown.space)="openItem(item, cell.date, $event)"
+      >
+        <span class="event-dot"></span>
+        <div>
+          <strong>{{ item.timeRange }}</strong>
+          @if (item.title) {
+          <small>{{ item.title }}</small>
+          }
+        </div>
+      </div>
+      } @if (cell.hiddenItemsCount > 0) {
+      <span
+        class="more-items"
+        [ccsTooltip]="
+          ('availability.more_items_prefix' | t) +
+          ' ' +
+          cell.hiddenItemsCount +
+          ' ' +
+          countLabel(cell.hiddenItemsCount) +
+          '. ' +
+          ('availability.more_items_tooltip' | t)
+        "
+        >+{{ cell.hiddenItemsCount }}</span
+      >
+      } }
+    </div>
+  </div>
+  }
+</div>

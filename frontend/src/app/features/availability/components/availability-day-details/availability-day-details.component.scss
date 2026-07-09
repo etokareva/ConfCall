@@ -1,0 +1,132 @@
+.day-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.state-card.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-muted);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  strong {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    line-height: 1.25;
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: 1.45;
+  }
+}
+
+.empty-state-action {
+  margin-top: var(--space-2);
+}
+
+.day-details-footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.day-item {
+  --event-accent: var(--color-slot-free);
+  --event-surface: var(--overlay-slot-free);
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--event-surface);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--event-surface) 45%, var(--color-bg));
+
+  &.clickable-item {
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--event-accent);
+      box-shadow: var(--focus-ring);
+      outline: none;
+    }
+  }
+
+  &.meeting-item {
+    --event-accent: var(--color-slot-busy);
+    --event-surface: var(--overlay-slot-busy);
+  }
+
+  &.past-meeting {
+    opacity: 0.72;
+  }
+
+  .event-dot {
+    background: var(--event-accent);
+  }
+}
+
+.day-item-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  strong {
+    color: var(--event-accent);
+    font-size: var(--font-size-md);
+  }
+
+  span,
+  small {
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.day-item.past-meeting {
+  .day-item-main {
+    strong,
+    small {
+      text-decoration: line-through;
+      text-decoration-thickness: 0.08em;
+      text-decoration-color: currentColor;
+    }
+  }
+}
+
+.day-item-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.event-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: var(--radius-round);
+  flex: 0 0 auto;
+}
+
+@media (max-width: 700px) {
+  .day-item {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .day-item-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}

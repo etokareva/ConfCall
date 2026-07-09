@@ -1,0 +1,110 @@
+<ccs-modal-shell
+  eyebrow="availability.day_schedule"
+  [title]="formatShortDate(day.date)"
+  [subtitle]="day.items.length + ' ' + countLabel(day.items.length)"
+  (close)="close.emit()"
+>
+  <div class="day-items">
+    @if (day.items.length > 0) { @for (item of day.items; track $index) {
+    <article
+      class="day-item"
+      [class.meeting-item]="item.kind === 'meeting'"
+      [class.past-meeting]="item.kind === 'meeting' && item.isPast"
+      [class.clickable-item]="item.kind !== 'meeting'"
+      [attr.role]="item.kind === 'meeting' ? null : 'button'"
+      [attr.tabindex]="item.kind === 'meeting' ? null : 0"
+      [attr.aria-label]="item.tooltip + ', ' + item.timeRange"
+      (click)="emitItemOpen(item, $event)"
+      (keydown.enter)="emitItemOpen(item, $event)"
+      (keydown.space)="emitItemOpen(item, $event)"
+    >
+      <span class="event-dot"></span>
+      <div class="day-item-main">
+        <strong>{{ item.timeRange }}</strong>
+        <span>{{ item.tooltip }}</span>
+        @if (item.title) {
+        <small>{{ item.title }}</small>
+        }
+      </div>
+      <div class="day-item-actions">
+        @if (item.kind === "meeting") {
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="emitMeetingOpen(item, $event)"
+        >
+          {{ "common.open" | t }}
+        </button>
+        } @else if (item.kind === "date") {
+        <button
+          type="button"
+          class="icon-button btn-secondary"
+          [ccsTooltip]="'common.edit' | t"
+          [attr.aria-label]="'common.edit' | t"
+          (click)="emitItemOpen(item, $event)"
+        >
+          <svg-icon name="edit"></svg-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-button btn-danger"
+          [ccsTooltip]="'common.delete' | t"
+          [attr.aria-label]="'common.delete' | t"
+          (click)="emitItemRemove(item, $event)"
+        >
+          <svg-icon name="trash"></svg-icon>
+        </button>
+        } @else {
+        <button
+          type="button"
+          class="icon-button btn-secondary"
+          [ccsTooltip]="'common.edit' | t"
+          [attr.aria-label]="'common.edit' | t"
+          (click)="emitItemOpen(item, $event)"
+        >
+          <svg-icon name="edit"></svg-icon>
+        </button>
+        <button
+          type="button"
+          class="icon-button btn-danger"
+          [ccsTooltip]="'common.delete' | t"
+          [attr.aria-label]="'common.delete' | t"
+          (click)="emitItemRemove(item, $event)"
+        >
+          <svg-icon name="trash"></svg-icon>
+        </button>
+        }
+      </div>
+    </article>
+    } } @else {
+    <div class="state-card empty-state">
+      <strong>{{ "availability.day_empty_title" | t }}</strong>
+      <span>{{ "availability.day_empty_message" | t }}</span>
+      <button
+        type="button"
+        class="btn-primary empty-state-action"
+        [ccsTooltip]="
+          ('availability.add_free_slot_tooltip' | t) + ' ' + formatShortDate(day.date)
+        "
+        (click)="emitAddSlot($event)"
+      >
+        {{ "availability.add_slot" | t }}
+      </button>
+    </div>
+    }
+  </div>
+  @if (day.items.length > 0) {
+  <div modalFooter class="day-details-footer">
+    <button
+      type="button"
+      class="btn-primary"
+      [ccsTooltip]="
+        ('availability.add_free_slot_tooltip' | t) + ' ' + formatShortDate(day.date)
+      "
+      (click)="emitAddSlot($event)"
+    >
+      {{ "availability.add_slot" | t }}
+    </button>
+  </div>
+  }
+</ccs-modal-shell>
