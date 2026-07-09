@@ -122,6 +122,8 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
     "{name} has no free slots on this day",
   "availability.intersection.no_availability_some":
     "Some of the selected users have no free slots on this day",
+  "availability.intersection.range_too_long":
+    "Select a range of no more than 31 days",
   "booking.conflict":
     "This time is already booked by another meeting. Refresh the options and choose a free slot.",
   "booking.link_inactive":
@@ -627,6 +629,8 @@ export const EN_TRANSLATIONS: TranslationDictionary = {
   "book.date_error.invalid": "Check day, month, and year",
   "book.date_error.past": "Date cannot be earlier than today",
   "book.date_error.range": "The end date cannot be earlier than the start date",
+  "book.date_error.range_too_long":
+    "Select a range of no more than {count} days",
   "book.groups_load_error": "Could not load the group list. Refresh the page.",
   "book.group_users_error": "Could not load members of the selected group.",
   "book.toast.groups_unavailable_title": "Groups are unavailable",

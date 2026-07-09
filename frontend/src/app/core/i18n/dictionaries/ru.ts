@@ -121,6 +121,8 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
     "У {name} нет доступных слотов на этот день",
   "availability.intersection.no_availability_some":
     "У части выбранных пользователей нет доступных слотов на этот день",
+  "availability.intersection.range_too_long":
+    "Выберите диапазон не больше 31 дня",
   "booking.conflict":
     "Это время уже занято другой встречей. Обновите варианты и выберите свободный слот.",
   "booking.link_inactive":
@@ -640,6 +642,7 @@ export const RU_TRANSLATIONS: TranslationDictionary = {
   "book.date_error.invalid": "Проверьте день, месяц и год",
   "book.date_error.past": "Дата не может быть раньше сегодняшней",
   "book.date_error.range": "Дата окончания не может быть раньше даты начала",
+  "book.date_error.range_too_long": "Выберите диапазон не больше {count} дня",
   "book.groups_load_error":
     "Пока не получилось получить список групп. Попробуйте обновить страницу.",
   "book.group_users_error":

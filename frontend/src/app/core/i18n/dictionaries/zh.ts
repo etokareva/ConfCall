@@ -113,6 +113,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
     "{name} 在这一天没有空闲时段",
   "availability.intersection.no_availability_some":
     "所选用户中有一部分在这一天没有空闲时段",
+  "availability.intersection.range_too_long": "请选择不超过 31 天的范围",
   "booking.conflict": "该时间已被其他会议占用。请刷新选项并选择空闲时段。",
   "booking.link_inactive":
     "此预约链接当前未启用。如果组织者重新启用，请重试检查。",
@@ -562,6 +563,7 @@ export const ZH_TRANSLATIONS: TranslationDictionary = {
   "book.date_error.invalid": "请检查日、月、年",
   "book.date_error.past": "日期不能早于今天",
   "book.date_error.range": "结束日期不能早于开始日期",
+  "book.date_error.range_too_long": "请选择不超过 {count} 天的范围",
   "book.groups_load_error": "无法加载小组列表。请刷新页面。",
   "book.group_users_error": "无法加载所选小组成员。",
   "book.toast.groups_unavailable_title": "小组不可用",

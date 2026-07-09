@@ -325,6 +325,7 @@ export class BookPage {
     duration: this.durationControl,
   });
   readonly minDate = this.toIsoDate(new Date());
+  private readonly maxIntersectionRangeDays = 31;
   private readonly durationOverlayGapPx = 8;
   private availableDatesQueryKey = "";
   private readonly availableDatesWindowDays = 60;
@@ -503,7 +504,21 @@ export class BookPage {
       return this.i18n.translate("book.date_error.range");
     }
 
+    if (
+      this.getInclusiveDateRangeDays(start, end) > this.maxIntersectionRangeDays
+    ) {
+      return this.i18n
+        .translate("book.date_error.range_too_long")
+        .replace("{count}", String(this.maxIntersectionRangeDays));
+    }
+
     return null;
+  }
+
+  private getInclusiveDateRangeDays(start: string, end: string) {
+    const startTime = new Date(`${start}T00:00:00`).getTime();
+    const endTime = new Date(`${end}T00:00:00`).getTime();
+    return Math.floor((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1;
   }
 
   private clearSearchResults() {

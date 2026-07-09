@@ -123,6 +123,8 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
     "{name} no tiene huecos libres en este día",
   "availability.intersection.no_availability_some":
     "Algunos de los usuarios elegidos no tienen huecos libres en este día",
+  "availability.intersection.range_too_long":
+    "Selecciona un rango de no más de 31 días",
   "booking.conflict":
     "Esta hora ya está ocupada por otra reunión. Actualiza las opciones y elige un hueco libre.",
   "booking.link_inactive":
@@ -643,6 +645,8 @@ export const ES_TRANSLATIONS: TranslationDictionary = {
   "book.date_error.past": "La fecha no puede ser anterior a hoy",
   "book.date_error.range":
     "La fecha de fin no puede ser anterior a la fecha de inicio",
+  "book.date_error.range_too_long":
+    "Selecciona un rango de no más de {count} días",
   "book.groups_load_error":
     "No se pudo cargar la lista de grupos. Actualiza la página.",
   "book.group_users_error": "No se pudieron cargar miembros del grupo.",
