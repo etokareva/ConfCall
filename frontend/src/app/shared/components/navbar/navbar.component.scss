@@ -169,12 +169,14 @@
     white-space: nowrap;
   }
 }
-.btn-login {
+.nav-links a.btn-login {
   background: var(--color-danger);
-  color: var(--color-text);
+  color: var(--color-text-inverse-strong);
   padding: var(--space-2) 1.5rem;
   border-radius: var(--radius-xs);
+  font-weight: 700;
+
   &:hover {
-    color: var(--color-text);
+    color: var(--color-text-inverse-strong);
   }
 }
