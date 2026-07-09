@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { EMPTY, firstValueFrom } from "rxjs";
+import { EMPTY, firstValueFrom, from } from "rxjs";
 import {
   catchError,
   debounceTime,
@@ -20,17 +20,27 @@ import {
   tap,
 } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Dialog } from "@angular/cdk/dialog";
 import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
 import { NavbarComponent } from "../../../shared/components/navbar/navbar.component";
 import { IconComponent } from "../../../shared/components/icon/icon.component";
 import { DateInputComponent } from "../../../shared/components/date-input/date-input.component";
 import { SelectableCardGridComponent } from "../../../shared/components/selectable-card-grid/selectable-card-grid.component";
-import { BookingDialogComponent } from "../components/booking-dialog/booking-dialog.component";
+import { BookingDialogResult } from "../models/booking-dialog.model";
 import {
-  BookingDialogData,
-  BookingDialogResult,
-} from "../models/booking-dialog.model";
+  BookDateMode,
+  BookingMode,
+  BookStep,
+  BookStepId,
+  DayIntersection,
+} from "../models/book-page.model";
+import {
+  addDays,
+  getInclusiveDateRangeDays,
+  timeToMinutes,
+  tomorrowIso,
+  toIsoDate,
+} from "../utils/book-date.utils";
+import { BookingDialogService } from "../services/booking-dialog.service";
 import { AvailabilityService } from "../../../core/services/availability.service";
 import { MeetingService } from "../../../core/services/meeting.service";
 import { GroupService } from "../../../core/services/group.service";
@@ -46,24 +56,6 @@ import {
   AvailableRange,
 } from "../../../core/models/api.model";
 import { SelectableCardItem } from "../../../shared/models/selectable-card.model";
-
-type BookStepId = "group" | "participants" | "params";
-type BookDateMode = "single" | "range";
-type BookingMode = "internal" | "public";
-
-interface BookStep {
-  id: BookStepId;
-  title: string;
-  description: string;
-}
-
-interface DayIntersection {
-  date: string;
-  availableSlots: AvailableSlot[];
-  availableRanges: AvailableRange[];
-  messageKey: string | null;
-  unavailableUserIds?: number[];
-}
 
 @Component({
   selector: "ccs-book",
@@ -89,7 +81,7 @@ export class BookPage {
   booking = inject(BookingService);
   toast = inject(ToastService);
   i18n = inject(I18nService);
-  private readonly dialog = inject(Dialog);
+  private readonly bookingDialog = inject(BookingDialogService);
   private readonly destroyRef = inject(DestroyRef);
   @ViewChild("durationButton") durationButton?: ElementRef<HTMLButtonElement>;
 
@@ -106,9 +98,9 @@ export class BookPage {
   selectedIds = signal<number[]>([]);
   bookingMode = signal<BookingMode>("internal");
   searchMode = signal<BookDateMode>("single");
-  selectedDate = signal(this.tomorrow());
-  selectedRangeStart = signal(this.tomorrow());
-  selectedRangeEnd = signal(this.tomorrow());
+  selectedDate = signal(tomorrowIso());
+  selectedRangeStart = signal(tomorrowIso());
+  selectedRangeEnd = signal(tomorrowIso());
   dateError = signal<string | null>(null);
   duration = signal<number | null>(null);
   durationOpen = signal(false);
@@ -331,7 +323,7 @@ export class BookPage {
     rangeEnd: this.rangeEndControl,
     duration: this.durationControl,
   });
-  readonly minDate = this.toIsoDate(new Date());
+  readonly minDate = toIsoDate(new Date());
   private readonly durationOverlayGapPx = 8;
   private availableDatesQueryKey = "";
   private readonly availableDatesWindowDays = 60;
@@ -437,12 +429,6 @@ export class BookPage {
     this.syncSearchFormAfterModeChange();
   }
 
-  private tomorrow(): string {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return this.toIsoDate(d);
-  }
-
   private bindSearchForm() {
     this.searchForm.valueChanges
       .pipe(
@@ -513,12 +499,6 @@ export class BookPage {
     return null;
   }
 
-  private getInclusiveDateRangeDays(start: string, end: string) {
-    const startTime = new Date(`${start}T00:00:00`).getTime();
-    const endTime = new Date(`${end}T00:00:00`).getTime();
-    return Math.floor((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1;
-  }
-
   private selectedRangeDays() {
     const start = this.selectedRangeStart();
     const end = this.selectedRangeEnd();
@@ -527,7 +507,7 @@ export class BookPage {
       return undefined;
     }
 
-    return this.getInclusiveDateRangeDays(start, end);
+    return getInclusiveDateRangeDays(start, end);
   }
 
   private clearSearchResults() {
@@ -661,19 +641,6 @@ export class BookPage {
     return "idle";
   }
 
-  private toIsoDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = `${date.getMonth() + 1}`.padStart(2, "0");
-    const day = `${date.getDate()}`.padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
-
-  private addDays(dateKey: string, days: number) {
-    const date = new Date(`${dateKey}T00:00:00`);
-    date.setDate(date.getDate() + days);
-    return this.toIsoDate(date);
-  }
-
   private loadAvailableDates() {
     const groupId = this.selectedGroupId();
     const userIds = this.selectedIds();
@@ -690,7 +657,7 @@ export class BookPage {
 
     const duration = this.duration();
     const startDate = this.minDate;
-    const endDate = this.addDays(startDate, this.availableDatesWindowDays);
+    const endDate = addDays(startDate, this.availableDatesWindowDays);
     const queryKey = JSON.stringify({
       groupId,
       userIds: [...userIds].sort((a, b) => a - b),
@@ -789,7 +756,7 @@ export class BookPage {
       return;
     }
 
-    const data: BookingDialogData = {
+    const data = {
       mode: "public-link",
       dateLabel: this.selectedPeriodLabel(),
       defaultTitle: group.name,
@@ -797,25 +764,9 @@ export class BookPage {
       defaultDurationMinutes: this.duration() ?? 30,
       groupName: group.name,
       participantsLabel: this.selectedParticipantsSummary(),
-    };
+    } as const;
 
-    const dialogRef = this.dialog.open<
-      BookingDialogResult,
-      BookingDialogData,
-      BookingDialogComponent
-    >(BookingDialogComponent, {
-      data,
-      hasBackdrop: true,
-      ariaModal: true,
-      autoFocus: "first-tabbable",
-      restoreFocus: true,
-      width: "560px",
-      maxWidth: "calc(100vw - 2rem)",
-      backdropClass: "app-dialog-backdrop",
-      panelClass: "ccs-dialog-panel",
-    });
-
-    dialogRef.closed
+    from(this.bookingDialog.openPublicLink(data))
       .pipe(
         filter((result): result is BookingDialogResult => Boolean(result)),
         tap(() => this.creatingLink.set(true)),
@@ -1082,12 +1033,7 @@ export class BookPage {
   }
 
   private async openBookingDialog(slot: AvailableSlot, dateIso: string) {
-    const ref = this.dialog.open<
-      BookingDialogResult,
-      BookingDialogData,
-      BookingDialogComponent
-    >(BookingDialogComponent, {
-      data: {
+    const result = await this.bookingDialog.openMeeting({
         mode: "meeting",
         dateLabel: this.selectedDateLabel(dateIso),
         start: slot.start,
@@ -1097,19 +1043,7 @@ export class BookPage {
         participantsLabel: this.selectedParticipantsSummary(),
         defaultTitle: this.i18n.translate("book.default_meeting_title"),
         defaultDescription: "",
-      },
-      hasBackdrop: true,
-      ariaModal: true,
-      autoFocus: "dialog",
-      restoreFocus: true,
-      disableClose: false,
-      width: "500px",
-      maxWidth: "calc(100vw - 2rem)",
-      backdropClass: "app-dialog-backdrop",
-      panelClass: "ccs-dialog-panel",
     });
-
-    const result = await firstValueFrom(ref.closed);
     if (!result?.title) return;
 
     await this.createMeeting(slot, result, dateIso);
@@ -1154,7 +1088,7 @@ export class BookPage {
 
   private slotDurationLabel(slot: AvailableSlot) {
     const durationMinutes =
-      this.timeToMinutes(slot.end) - this.timeToMinutes(slot.start);
+      timeToMinutes(slot.end) - timeToMinutes(slot.start);
     return this.rangeDurationLabel({
       start: slot.start,
       end: slot.end,
@@ -1166,10 +1100,5 @@ export class BookPage {
     return this.durationControl.value === null
       ? this.slotDurationLabel(slot)
       : this.durationLabel();
-  }
-
-  private timeToMinutes(value: string) {
-    const [hours, minutes] = value.split(":").map(Number);
-    return hours * 60 + minutes;
   }
 }
