@@ -130,6 +130,7 @@
               [class.weekly-event]="item.kind === 'weekly'"
               [class.date-event]="item.kind === 'date'"
               [class.meeting-event]="item.kind === 'meeting'"
+              [class.past-meeting]="item.kind === 'meeting' && item.isPast"
               [ccsTooltip]="item.tooltip"
               [attr.aria-label]="item.tooltip + ', ' + item.timeRange"
               [attr.role]="item.kind === 'meeting' ? 'button' : 'button'"
@@ -192,6 +193,7 @@
             <article
               class="day-item"
               [class.meeting-item]="item.kind === 'meeting'"
+              [class.past-meeting]="item.kind === 'meeting' && item.isPast"
               [class.clickable-item]="item.kind !== 'meeting'"
               [attr.role]="item.kind === 'meeting' ? null : 'button'"
               [attr.tabindex]="item.kind === 'meeting' ? null : 0"

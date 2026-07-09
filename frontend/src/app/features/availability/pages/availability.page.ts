@@ -35,6 +35,7 @@ interface MonthCellItem {
   tooltip: string;
   kind: "weekly" | "date" | "meeting";
   timeRange: string;
+  isPast?: boolean;
   title?: string;
   eventIndex?: number;
   dayIndex?: number;
@@ -623,6 +624,7 @@ export class AvailabilityPage {
     const meetingItems = this.meetingsForDate(dateKey).map((meeting) => ({
       tooltip: `${this.i18n.translate("availability.meeting_tooltip_prefix")}: ${meeting.title}`,
       kind: "meeting" as const,
+      isPast: this.isPastMeeting(meeting),
       title: meeting.title,
       timeRange: `${this.formatTime(meeting.startTime)}—${this.formatTime(
         meeting.endTime,
@@ -645,6 +647,10 @@ export class AvailabilityPage {
           this.formatDateKey(new Date(meeting.startTime)) === dateKey,
       )
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }
+
+  private isPastMeeting(meeting: Meeting) {
+    return new Date(meeting.endTime).getTime() < Date.now();
   }
 
   private slotsForDay(dayIndex: number) {
