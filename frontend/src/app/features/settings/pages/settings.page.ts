@@ -434,13 +434,13 @@ export class SettingsPage {
     }
 
     from(
-      this.modal.confirm(
-        this.i18n.translate("groups.invite_confirm_title"),
-        this.i18n.translate("groups.invite_confirm_message", {
+      this.modal.confirm({
+        title: this.i18n.translate("groups.invite_confirm_title"),
+        message: this.i18n.translate("groups.invite_confirm_message", {
           emails: parsedEmails.join(", "),
         }),
-        this.i18n.translate("groups.send_invitations"),
-      ),
+        confirmText: this.i18n.translate("groups.send_invitations"),
+      }),
     )
       .pipe(
         filter(Boolean),
@@ -565,13 +565,13 @@ export class SettingsPage {
     }
 
     from(
-      this.modal.confirm(
-        this.i18n.translate("groups.remove_member_confirm_title"),
-        this.i18n.translate("groups.remove_member_confirm_message", {
+      this.modal.confirm({
+        title: this.i18n.translate("groups.remove_member_confirm_title"),
+        message: this.i18n.translate("groups.remove_member_confirm_message", {
           name: member.name ?? member.email ?? "",
         }),
-        this.i18n.translate("groups.remove_member"),
-      ),
+        confirmText: this.i18n.translate("groups.remove_member"),
+      }),
     )
       .pipe(
         filter(Boolean),
@@ -760,11 +760,11 @@ export class SettingsPage {
   }
   delete(id: number) {
     from(
-      this.modal.confirm(
-        this.i18n.translate("settings.delete_link.title"),
-        this.i18n.translate("settings.delete_link.message"),
-        this.i18n.translate("common.delete"),
-      ),
+      this.modal.confirm({
+        title: this.i18n.translate("settings.delete_link.title"),
+        message: this.i18n.translate("settings.delete_link.message"),
+        confirmText: this.i18n.translate("common.delete"),
+      }),
     )
       .pipe(
         filter(Boolean),

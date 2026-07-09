@@ -232,11 +232,11 @@ export class MeetingsPage implements OnInit {
     );
   }
   async cancel(id: number) {
-    const confirmed = await this.modal.confirm(
-      this.i18n.translate("meetings.cancel.title"),
-      this.i18n.translate("meetings.cancel.message"),
-      this.i18n.translate("meetings.cancel.confirm"),
-    );
+    const confirmed = await this.modal.confirm({
+      title: this.i18n.translate("meetings.cancel.title"),
+      message: this.i18n.translate("meetings.cancel.message"),
+      confirmText: this.i18n.translate("meetings.cancel.confirm"),
+    });
     if (!confirmed) return;
 
     this.service
@@ -261,11 +261,11 @@ export class MeetingsPage implements OnInit {
   }
 
   async decline(id: number) {
-    const confirmed = await this.modal.confirm(
-      this.i18n.translate("meetings.decline.title"),
-      this.i18n.translate("meetings.decline.message"),
-      this.i18n.translate("meetings.decline.confirm"),
-    );
+    const confirmed = await this.modal.confirm({
+      title: this.i18n.translate("meetings.decline.title"),
+      message: this.i18n.translate("meetings.decline.message"),
+      confirmText: this.i18n.translate("meetings.decline.confirm"),
+    });
     if (!confirmed) return;
 
     this.service

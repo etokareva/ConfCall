@@ -124,11 +124,11 @@ export class BookingLinksPage {
 
   deletePublicBookingLink(link: BookingLink) {
     from(
-      this.modal.confirm(
-        this.i18n.translate("settings.delete_link.title"),
-        this.i18n.translate("settings.delete_link.message"),
-        this.i18n.translate("common.delete"),
-      ),
+      this.modal.confirm({
+        title: this.i18n.translate("settings.delete_link.title"),
+        message: this.i18n.translate("settings.delete_link.message"),
+        confirmText: this.i18n.translate("common.delete"),
+      }),
     )
       .pipe(
         filter(Boolean),

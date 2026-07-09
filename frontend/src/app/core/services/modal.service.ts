@@ -3,8 +3,9 @@ import { firstValueFrom, map } from "rxjs";
 import { Dialog } from "@angular/cdk/dialog";
 import { ModalDialogComponent } from "../../shared/components/modal/modal.component";
 import {
-  ModalDialogAction,
   ModalDialogData,
+  ModalChoiceOptions,
+  ModalMessageOptions,
 } from "../../shared/models/modal-dialog.model";
 import { I18nService } from "../i18n/i18n.service";
 
@@ -14,102 +15,76 @@ export type ModalKind = "info" | "error" | "confirm";
 export class ModalService {
   private readonly dialog = inject(Dialog);
   private readonly i18n = inject(I18nService);
+  private readonly dialogBaseConfig = {
+    hasBackdrop: true,
+    ariaModal: true,
+    autoFocus: "dialog",
+    restoreFocus: true,
+    disableClose: false,
+    maxWidth: "calc(100vw - 2rem)",
+    backdropClass: "app-dialog-backdrop",
+  };
 
-  info(
-    title: string,
-    message: string,
-    confirmText = this.i18n.translate("common.ok"),
-  ) {
-    return this.open("info", title, message, confirmText);
+  info(options: ModalMessageOptions) {
+    return this.open("info", options);
   }
 
-  error(
-    title: string,
-    message: string,
-    confirmText = this.i18n.translate("common.ok"),
-  ) {
-    return this.open("error", title, message, confirmText);
+  error(options: ModalMessageOptions) {
+    return this.open("error", options);
   }
 
-  confirm(
-    title: string,
-    message: string,
-    confirmText = this.i18n.translate("common.confirm"),
-    cancelText = this.i18n.translate("common.cancel"),
-  ) {
-    return this.open("confirm", title, message, confirmText, cancelText);
+  confirm(options: ModalMessageOptions) {
+    return this.open("confirm", options);
   }
 
-  choose(
-    title: string,
-    message: string,
-    actions: ModalDialogAction[],
-  ): Promise<string | null> {
-    return this.openChoice(title, message, actions);
+  choose(options: ModalChoiceOptions): Promise<string | null> {
+    return this.openChoice(options);
   }
 
-  private open(
-    kind: ModalKind,
-    title: string,
-    message: string,
-    confirmText: string,
-    cancelText = this.i18n.translate("common.cancel"),
-  ) {
+  private open(kind: ModalKind, options: ModalMessageOptions) {
+    const { title, message, confirmText, cancelText } = options;
     const data: ModalDialogData = {
       kind,
       title,
       message,
-      confirmText,
-      cancelText,
+      confirmText:
+        confirmText ??
+        (kind === "confirm"
+          ? this.i18n.translate("common.confirm")
+          : this.i18n.translate("common.ok")),
+      cancelText: cancelText ?? this.i18n.translate("common.cancel"),
     };
-    const ref = this.dialog.open<
-      boolean,
-      ModalDialogData,
-      ModalDialogComponent
-    >(ModalDialogComponent, {
-      data,
-      hasBackdrop: true,
-      ariaModal: true,
-      autoFocus: "dialog",
-      restoreFocus: true,
-      disableClose: false,
-      width: "420px",
-      maxWidth: "calc(100vw - 2rem)",
-      backdropClass: "app-dialog-backdrop",
-    });
+    const ref = this.openDialog<boolean>(data, { width: "420px" });
 
     return firstValueFrom(ref.closed.pipe(map((result) => result ?? false)));
   }
 
-  private openChoice(
-    title: string,
-    message: string,
-    actions: ModalDialogAction[],
-  ) {
+  private openChoice(options: ModalChoiceOptions) {
+    const { title, message, actions, confirmText, cancelText } = options;
     const data: ModalDialogData = {
       kind: "confirm",
       title,
       message,
-      confirmText: this.i18n.translate("common.confirm"),
-      cancelText: this.i18n.translate("common.cancel"),
+      confirmText: confirmText ?? this.i18n.translate("common.confirm"),
+      cancelText: cancelText ?? this.i18n.translate("common.cancel"),
       actions,
     };
-    const ref = this.dialog.open<
-      string | null,
-      ModalDialogData,
-      ModalDialogComponent
-    >(ModalDialogComponent, {
-      data,
-      hasBackdrop: true,
-      ariaModal: true,
-      autoFocus: "dialog",
-      restoreFocus: true,
-      disableClose: false,
-      width: "460px",
-      maxWidth: "calc(100vw - 2rem)",
-      backdropClass: "app-dialog-backdrop",
-    });
+    const ref = this.openDialog<string | null>(data, { width: "460px" });
 
     return firstValueFrom(ref.closed.pipe(map((result) => result ?? null)));
+  }
+
+  private openDialog<Result>(
+    data: ModalDialogData,
+    config: { width: string },
+  ) {
+    return this.dialog.open<Result, ModalDialogData, ModalDialogComponent>(
+      ModalDialogComponent,
+      {
+        ...this.dialogBaseConfig,
+        ...config,
+        data,
+      },
+    );
   }
 }

@@ -12,3 +12,14 @@ export interface ModalDialogData {
   cancelText: string;
   actions?: ModalDialogAction[];
 }
+
+export interface ModalMessageOptions {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+export interface ModalChoiceOptions extends ModalMessageOptions {
+  actions: ModalDialogAction[];
+}
