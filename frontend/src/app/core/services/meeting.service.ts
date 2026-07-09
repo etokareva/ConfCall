@@ -11,7 +11,7 @@ import {
   catchError,
 } from "rxjs";
 import { ApiClientService } from "./api-client.service";
-import { Meeting } from "../models/api.model";
+import { CreateMeetingPayload, Meeting } from "../models/api.model";
 import { AuthService } from "./auth.service";
 
 @Injectable({ providedIn: "root" })
@@ -72,14 +72,7 @@ export class MeetingService {
       .pipe(tap((meetings) => this.meetingsSubject.next(meetings)));
   }
 
-  create(data: {
-    title: string;
-    description?: string;
-    startTime: string;
-    endTime: string;
-    participantEmails: string[];
-    groupId?: number;
-  }): Observable<Meeting> {
+  create(data: CreateMeetingPayload): Observable<Meeting> {
     return this.client.post<Meeting>("/meetings", data).pipe(
       tap((meeting) => {
         this.meetingsSubject.next([...this.meetingsSubject.value, meeting]);

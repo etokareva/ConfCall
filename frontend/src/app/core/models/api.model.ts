@@ -97,6 +97,15 @@ export interface MeetingParticipant {
   seenAt?: string | null;
 }
 
+export interface CreateMeetingPayload {
+  title: string;
+  description?: string;
+  startTime: string;
+  endTime: string;
+  participantEmails: string[];
+  groupId?: number;
+}
+
 export interface BookingLink {
   id: number;
   groupId: number | null;
