@@ -1,8 +1,8 @@
 import type { Instance } from "flatpickr/dist/types/instance";
-import { english } from "flatpickr/dist/l10n/default.js";
-import { Spanish } from "flatpickr/dist/l10n/es.js";
-import { Russian } from "flatpickr/dist/l10n/ru.js";
-import { Mandarin } from "flatpickr/dist/l10n/zh.js";
+import { english } from "flatpickr/dist/esm/l10n/default.js";
+import { Spanish } from "flatpickr/dist/esm/l10n/es.js";
+import { Russian } from "flatpickr/dist/esm/l10n/ru.js";
+import { Mandarin } from "flatpickr/dist/esm/l10n/zh.js";
 import type { CustomLocale, Locale } from "flatpickr/dist/types/locale";
 import { AppLocale } from "../../core/models/api.model";
 
