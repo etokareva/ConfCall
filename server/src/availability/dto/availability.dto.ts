@@ -129,6 +129,12 @@ export class GetIntersectionQueryDto {
   @IsInt()
   @Min(1)
   groupId?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => normalizeNumberQuery(value))
+  @IsInt()
+  @Min(1)
+  maxIntersectionRangeDays?: number;
 }
 
 export function parseIntersectionQuery(
@@ -164,6 +170,9 @@ export function parseIntersectionQuery(
   const endDate = normalizeDateQuery(query.endDate);
   const durationMinutes = normalizeNumberQuery(query.durationMinutes);
   const groupId = normalizeNumberQuery(query.groupId);
+  const maxIntersectionRangeDays = normalizeNumberQuery(
+    query.maxIntersectionRangeDays,
+  );
 
   if (typeof date === 'string' && ISO_DATE_ONLY_PATTERN.test(date)) {
     parsed.date = date;
@@ -186,6 +195,13 @@ export function parseIntersectionQuery(
 
   if (typeof groupId === 'number' && groupId >= 1) {
     parsed.groupId = groupId;
+  }
+
+  if (
+    typeof maxIntersectionRangeDays === 'number' &&
+    maxIntersectionRangeDays >= 1
+  ) {
+    parsed.maxIntersectionRangeDays = maxIntersectionRangeDays;
   }
 
   return parsed;

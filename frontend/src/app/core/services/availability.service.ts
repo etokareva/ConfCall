@@ -98,6 +98,7 @@ export class AvailabilityService {
     endDate: string,
     durationMinutes?: number,
     groupId?: number,
+    maxIntersectionRangeDays?: number,
   ): Observable<AvailabilityRangeIntersectionResult> {
     const params = new URLSearchParams({
       userIds: JSON.stringify(userIds),
@@ -109,6 +110,12 @@ export class AvailabilityService {
     }
     if (groupId) {
       params.set("groupId", String(groupId));
+    }
+    if (maxIntersectionRangeDays != null) {
+      params.set(
+        "maxIntersectionRangeDays",
+        String(maxIntersectionRangeDays),
+      );
     }
     return this.client.get<AvailabilityRangeIntersectionResult>(
       `/availability/intersection?${params}`,

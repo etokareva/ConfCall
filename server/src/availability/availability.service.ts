@@ -55,7 +55,7 @@ interface IntersectionCacheEntry {
   version: number;
 }
 
-const MAX_INTERSECTION_RANGE_DAYS = 31;
+const DEFAULT_MAX_INTERSECTION_RANGE_DAYS = 31;
 const INTERSECTION_CACHE_TTL_MS = 5000;
 
 @Injectable()
@@ -156,8 +156,15 @@ export class AvailabilityService implements OnModuleInit, OnModuleDestroy {
     query: GetIntersectionQueryDto,
     userId: number,
   ): Promise<IntersectionResponse | RangeIntersectionResponse> {
-    const { userIds, date, startDate, endDate, durationMinutes, groupId } =
-      query;
+    const {
+      userIds,
+      date,
+      startDate,
+      endDate,
+      durationMinutes,
+      groupId,
+      maxIntersectionRangeDays,
+    } = query;
     if (!Array.isArray(userIds) || userIds.length === 0) {
       return {
         availableSlots: [],
@@ -183,6 +190,7 @@ export class AvailabilityService implements OnModuleInit, OnModuleDestroy {
         startDate,
         endDate,
         durationMinutes,
+        maxIntersectionRangeDays,
       });
       this.setCachedIntersection(cacheKey, result, cacheVersion);
       return result;
@@ -206,11 +214,13 @@ export class AvailabilityService implements OnModuleInit, OnModuleDestroy {
     startDate,
     endDate,
     durationMinutes,
+    maxIntersectionRangeDays,
   }: {
     userIds: number[];
     startDate?: string;
     endDate?: string;
     durationMinutes?: number;
+    maxIntersectionRangeDays?: number;
   }): Promise<RangeIntersectionResponse> {
     if (!startDate || !endDate) {
       return {
@@ -227,7 +237,10 @@ export class AvailabilityService implements OnModuleInit, OnModuleDestroy {
       };
     }
 
-    if (dates.length > MAX_INTERSECTION_RANGE_DAYS) {
+    const effectiveMaxIntersectionRangeDays =
+      maxIntersectionRangeDays ?? DEFAULT_MAX_INTERSECTION_RANGE_DAYS;
+
+    if (dates.length > effectiveMaxIntersectionRangeDays) {
       return {
         days: [],
         messageKey: 'availability.intersection.range_too_long',
