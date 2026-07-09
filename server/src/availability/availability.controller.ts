@@ -3,7 +3,7 @@ import { AvailabilityService } from './availability.service';
 import {
   SetAvailabilityDto,
   SetCalendarEventsDto,
-  GetIntersectionQueryDto,
+  parseIntersectionQuery,
 } from './dto/availability.dto';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuthenticatedUser } from '../auth/auth-user.interface';
@@ -49,8 +49,8 @@ export class AvailabilityController {
   @Get('intersection')
   getIntersection(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() query: GetIntersectionQueryDto,
+    @Query() query: Record<string, unknown>,
   ) {
-    return this.svc.getIntersection(query, user.id);
+    return this.svc.getIntersection(parseIntersectionQuery(query), user.id);
   }
 }

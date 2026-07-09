@@ -131,6 +131,66 @@ export class GetIntersectionQueryDto {
   groupId?: number;
 }
 
+export function parseIntersectionQuery(
+  query: Record<string, unknown>,
+): GetIntersectionQueryDto {
+  const parsed = new GetIntersectionQueryDto();
+
+  const rawUserIds = query.userIds;
+  if (Array.isArray(rawUserIds)) {
+    parsed.userIds = rawUserIds
+      .map((value) => Number(value))
+      .filter((value) => Number.isInteger(value));
+  } else if (typeof rawUserIds === 'string') {
+    try {
+      const jsonValue = JSON.parse(rawUserIds);
+      parsed.userIds = Array.isArray(jsonValue)
+        ? jsonValue
+            .map((value) => Number(value))
+            .filter((value) => Number.isInteger(value))
+        : [];
+    } catch {
+      parsed.userIds = rawUserIds
+        .split(',')
+        .map((value) => Number(value))
+        .filter((value) => Number.isInteger(value));
+    }
+  } else {
+    parsed.userIds = [];
+  }
+
+  const date = normalizeDateQuery(query.date);
+  const startDate = normalizeDateQuery(query.startDate);
+  const endDate = normalizeDateQuery(query.endDate);
+  const durationMinutes = normalizeNumberQuery(query.durationMinutes);
+  const groupId = normalizeNumberQuery(query.groupId);
+
+  if (typeof date === 'string' && ISO_DATE_ONLY_PATTERN.test(date)) {
+    parsed.date = date;
+  }
+
+  if (
+    typeof startDate === 'string' &&
+    ISO_DATE_ONLY_PATTERN.test(startDate)
+  ) {
+    parsed.startDate = startDate;
+  }
+
+  if (typeof endDate === 'string' && ISO_DATE_ONLY_PATTERN.test(endDate)) {
+    parsed.endDate = endDate;
+  }
+
+  if (typeof durationMinutes === 'number' && durationMinutes >= 1) {
+    parsed.durationMinutes = durationMinutes;
+  }
+
+  if (typeof groupId === 'number' && groupId >= 1) {
+    parsed.groupId = groupId;
+  }
+
+  return parsed;
+}
+
 export interface AvailableSlot {
   start: string;
   end: string;
