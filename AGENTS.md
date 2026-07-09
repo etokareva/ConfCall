@@ -116,7 +116,11 @@ app/
 │           │       ├── toast/       # Toast host через CDK Overlay
 │           │       └── tooltip/     # Переиспользуемый tooltip через CDK Overlay
 │           └── features/
-│               ├── login/pages/login.page.{ts,html,scss}
+│               ├── login/pages/
+│               │   ├── login/login.page.{ts,html,scss}
+│               │   ├── invite/invite.page.{ts,html,scss}
+│               │   ├── reset-password/reset-password.page.{ts,html,scss}
+│               │   └── verify-email/verify-email.page.{ts,html,scss}
 │               ├── dashboard/pages/dashboard.page.{ts,html,scss}
 │               ├── availability/
 │               │   ├── components/availability-event-dialog/ # Диалог слота доступности
@@ -394,6 +398,7 @@ DATABASE_URL=mysql://app_user:change_me_mysql_password@localhost:3306/confcall_s
 - Не дублировать структуру объекта в нескольких местах, если её можно выразить одной общей TS-моделью.
 - Если один и тот же контракт используется в нескольких компонентах или сервисах, вынести его в отдельный `models/*.ts` файл, доступный всем потребителям.
 - Не держать общие DTO и UI-контракты внутри одного компонента, если они уже стали частью межкомпонентного взаимодействия.
+- Если feature содержит несколько самостоятельных route pages, хранить каждую страницу в отдельной подпапке внутри `pages/`, например `pages/login/login.page.ts`, чтобы не смешивать независимые маршруты плоским списком файлов.
 - Если page-компонент разрастается и начинает совмещать несколько самостоятельных UI-блоков, выносить их в feature-компоненты поменьше с явными `Input`/`Output`, а не наращивать страницу дальше.
 - Не оставлять магические числа и строки с доменным смыслом внутри компонентов и сервисов. Повторяемые или значимые значения выносить в именованные константы рядом с моделью или feature-контекстом.
 

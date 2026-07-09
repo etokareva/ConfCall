@@ -52,6 +52,7 @@
 | Empty/error/loading states | Несколько страниц                             | Вынести `ccs-state` с вариантами `empty`, `error`, `loading`                                                              |
 | User/member cards          | `/book`, `/groups`, `/meetings`               | Вынести компактный `ccs-person-chip` или `ccs-user-card`                                                                  |
 | Public link rows           | `/booking-links`                              | Если появятся в другом разделе, вынести `ccs-link-row`: кликабельный URL, status chip и icon-actions с tooltip/aria-label |
+| Booking dialog open logic  | `features/book/services/booking-dialog.service.ts` | Открытие CDK Dialog для встречи и публичной ссылки уже вынесено из `book.page`; новые сценарии бронирования подключать через сервис, а не дублировать dialog config |
 | Availability calendar math | `/availability`                               | Уже вынесено в feature utils; поднимать выше по дереву стоит только при втором реальном сценарии использования          |
 
 ## Datepicker Решение
