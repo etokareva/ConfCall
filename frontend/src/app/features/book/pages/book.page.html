@@ -187,11 +187,14 @@
               <span>{{ groupUsersError() }}</span>
             </div>
             } @else {
-            <ccs-user-select
-              [users]="filteredUsers()"
+            <ccs-selectable-card-grid
+              [items]="userItems()"
               [selectedIds]="selectedIds()"
+              [ariaLabel]="'book.participants' | t"
+              [selectLabel]="'a11y.select_participant' | t"
+              [selectedLabel]="'a11y.selected_participant' | t"
               (toggle)="toggleUser($event)"
-            ></ccs-user-select>
+            ></ccs-selectable-card-grid>
             @if (users().length > 0 && filteredUsers().length === 0) {
             <div class="state-card empty-state">
               <strong>{{ "book.participant_not_found" | t }}</strong>

@@ -25,7 +25,6 @@ import { OverlayModule, ConnectedPosition } from "@angular/cdk/overlay";
 import { NavbarComponent } from "../../../shared/components/navbar/navbar.component";
 import { IconComponent } from "../../../shared/components/icon/icon.component";
 import { DateInputComponent } from "../../../shared/components/date-input/date-input.component";
-import { UserSelectComponent } from "../components/user-select/user-select.component";
 import { SelectableCardGridComponent } from "../../../shared/components/selectable-card-grid/selectable-card-grid.component";
 import { BookingDialogComponent } from "../components/booking-dialog/booking-dialog.component";
 import {
@@ -76,7 +75,6 @@ interface DayIntersection {
     NavbarComponent,
     IconComponent,
     DateInputComponent,
-    UserSelectComponent,
     SelectableCardGridComponent,
     TooltipDirective,
     TranslatePipe,
@@ -189,6 +187,15 @@ export class BookPage {
       `${user.name ?? ""} ${user.email ?? ""}`.toLowerCase().includes(query),
     );
   });
+  readonly userItems = computed<SelectableCardItem[]>(() =>
+    this.filteredUsers().map(({ id, name, email, avatar }) => ({
+      id,
+      title: name || email || "",
+      subtitle: email || undefined,
+      avatar,
+      fallbackText: name || email || "?",
+    })),
+  );
   readonly allVisibleUsersSelected = computed(() => {
     const visibleUsers = this.filteredUsers();
     if (visibleUsers.length === 0) return false;
