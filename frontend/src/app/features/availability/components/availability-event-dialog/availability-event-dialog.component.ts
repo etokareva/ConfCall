@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import {
   AbstractControl,
   FormControl,
@@ -51,6 +52,13 @@ const DEFAULT_REPEAT_DAYS = 7;
 })
 export class AvailabilityEventDialogComponent {
   private readonly i18n = inject(I18nService);
+  private readonly dialogData = inject<AvailabilityEventDialogData | null>(
+    DIALOG_DATA,
+    { optional: true },
+  );
+  private readonly dialogRef = inject<
+    DialogRef<AvailabilityEventDialogResult | undefined>
+  >(DialogRef, { optional: true });
   private currentData!: AvailabilityEventDialogData;
   @Output() readonly cancel = new EventEmitter<void>();
   @Output() readonly save = new EventEmitter<AvailabilityEventDialogResult>();
@@ -87,6 +95,12 @@ export class AvailabilityEventDialogComponent {
     },
     { validators: [availabilityEventValidator] },
   );
+
+  constructor() {
+    if (this.dialogData) {
+      this.data = this.dialogData;
+    }
+  }
 
   @Input()
   set data(value: AvailabilityEventDialogData) {
@@ -145,6 +159,7 @@ export class AvailabilityEventDialogComponent {
   }
 
   close() {
+    this.dialogRef?.close();
     this.cancel.emit();
   }
 
@@ -157,7 +172,7 @@ export class AvailabilityEventDialogComponent {
     const value = this.form.getRawValue() as AvailabilityEventDialogFormValue;
 
     if (value.mode === "single") {
-      this.save.emit({
+      this.emitSave({
         startDate: value.singleDate,
         endDate: value.singleDate,
         repeatEveryDays: 1,
@@ -167,13 +182,18 @@ export class AvailabilityEventDialogComponent {
       return;
     }
 
-    this.save.emit({
+    this.emitSave({
       startDate: value.startDate,
       endDate: value.endDate,
       repeatEveryDays: value.repeatEveryDays,
       startTime: value.startTime,
       endTime: value.endTime,
     });
+  }
+
+  private emitSave(result: AvailabilityEventDialogResult) {
+    this.dialogRef?.close(result);
+    this.save.emit(result);
   }
 
   formatDateLabel(dateKey: string) {

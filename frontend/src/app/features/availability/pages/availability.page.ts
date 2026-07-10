@@ -14,7 +14,10 @@ import { ToastService } from "../../../core/services/toast.service";
 import { MeetingService } from "../../../core/services/meeting.service";
 import { ModalService } from "../../../core/services/modal.service";
 import { AvailabilityEventDialogComponent } from "../components/availability-event-dialog/availability-event-dialog.component";
-import { AvailabilityDayDetailsComponent } from "../components/availability-day-details/availability-day-details.component";
+import {
+  AvailabilityDayDetailsComponent,
+  AvailabilityDayDetailsResult,
+} from "../components/availability-day-details/availability-day-details.component";
 import { AvailabilityMonthGridComponent } from "../components/availability-month-grid/availability-month-grid.component";
 import {
   AvailabilityEventDialogData,
@@ -60,8 +63,6 @@ import {
   imports: [
     CommonModule,
     NavbarComponent,
-    AvailabilityEventDialogComponent,
-    AvailabilityDayDetailsComponent,
     AvailabilityMonthGridComponent,
     IconComponent,
     TooltipDirective,
@@ -86,10 +87,7 @@ export class AvailabilityPage {
     [],
   );
   readonly meetings = signal<Meeting[]>([]);
-  readonly editorOpen = signal(false);
   readonly editorData = signal<AvailabilityEventDialogData | null>(null);
-  readonly dayDetailsOpen = signal(false);
-  readonly selectedDay = signal<MonthCell | null>(null);
   readonly focusedDateKey = signal(formatDateKey(new Date()));
   readonly monthLabel = computed(() =>
     new Intl.DateTimeFormat(this.localeName(), {
@@ -161,13 +159,11 @@ export class AvailabilityPage {
   openDateDialog(date: Date, event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
-    this.dayDetailsOpen.set(false);
-
-    this.editorData.set({
+    const data: AvailabilityEventDialogData = {
       dateKey: formatDateKey(date),
       mode: "single",
-    });
-    this.editorOpen.set(true);
+    };
+    this.openAvailabilityEventDialog(data);
   }
 
   openDateDialogForEvent(item: MonthCellItem, event?: Event) {
@@ -179,7 +175,7 @@ export class AvailabilityPage {
     const calendarEvent = this.calendarEvents()[item.eventIndex];
     if (!calendarEvent) return;
 
-    this.editorData.set({
+    const data: AvailabilityEventDialogData = {
       dateKey: calendarEvent.startDate,
       mode:
         calendarEvent.startDate === calendarEvent.endDate &&
@@ -188,9 +184,8 @@ export class AvailabilityPage {
           : "recurring",
       event: calendarEvent,
       eventIndex: item.eventIndex,
-    });
-    this.editorOpen.set(true);
-    this.dayDetailsOpen.set(false);
+    };
+    this.openAvailabilityEventDialog(data);
   }
 
   openWeeklySlotDialog(item: MonthCellItem, date: Date, event?: Event) {
@@ -210,7 +205,7 @@ export class AvailabilityPage {
 
     const dateKey = formatDateKey(date);
 
-    this.editorData.set({
+    const data: AvailabilityEventDialogData = {
       dateKey,
       mode: "recurring",
       event: {
@@ -224,9 +219,8 @@ export class AvailabilityPage {
         dayIndex: item.dayIndex,
         slotIndex: item.slotIndex,
       },
-    });
-    this.editorOpen.set(true);
-    this.dayDetailsOpen.set(false);
+    };
+    this.openAvailabilityEventDialog(data);
   }
 
   openDayDetails(date: Date, event?: Event) {
@@ -237,18 +231,96 @@ export class AvailabilityPage {
     const cell = this.monthCells().find((item) => item.dateKey === dateKey);
     if (!cell) return;
 
-    this.selectedDay.set(cell);
-    this.dayDetailsOpen.set(true);
+    this.openDayDetailsDialog(cell);
   }
 
   closeDayDetails() {
-    this.dayDetailsOpen.set(false);
-    this.selectedDay.set(null);
+    this.dialog.closeAll();
   }
 
   closeDateDialog() {
-    this.editorOpen.set(false);
     this.editorData.set(null);
+  }
+
+  private openAvailabilityEventDialog(data: AvailabilityEventDialogData) {
+    this.editorData.set(data);
+    const ref = this.dialog.open<
+      AvailabilityEventDialogResult | undefined,
+      AvailabilityEventDialogData,
+      AvailabilityEventDialogComponent
+    >(AvailabilityEventDialogComponent, {
+      data,
+      hasBackdrop: true,
+      ariaModal: true,
+      autoFocus: "first-tabbable",
+      restoreFocus: true,
+      disableClose: false,
+      width: "min(560px, calc(100vw - 2rem))",
+      maxWidth: "calc(100vw - 2rem)",
+      backdropClass: "app-dialog-backdrop",
+      panelClass: "ccs-dialog-panel",
+    });
+
+    ref.closed
+      .pipe(
+        take(1),
+        tap((result) => {
+          if (result) {
+            void this.saveDateDialog(result);
+            return;
+          }
+
+          this.closeDateDialog();
+        }),
+      )
+      .subscribe();
+  }
+
+  private openDayDetailsDialog(day: MonthCell) {
+    const ref = this.dialog.open<
+      AvailabilityDayDetailsResult | undefined,
+      MonthCell,
+      AvailabilityDayDetailsComponent
+    >(AvailabilityDayDetailsComponent, {
+      data: day,
+      hasBackdrop: true,
+      ariaModal: true,
+      autoFocus: "first-tabbable",
+      restoreFocus: true,
+      disableClose: false,
+      width: "min(640px, calc(100vw - 2rem))",
+      maxWidth: "calc(100vw - 2rem)",
+      backdropClass: "app-dialog-backdrop",
+      panelClass: "ccs-dialog-panel",
+    });
+
+    ref.closed
+      .pipe(
+        take(1),
+        tap((result) => this.handleDayDetailsResult(result)),
+      )
+      .subscribe();
+  }
+
+  private handleDayDetailsResult(result?: AvailabilityDayDetailsResult) {
+    if (!result) return;
+
+    if (result.kind === "addSlot") {
+      this.openDateDialog(result.date);
+      return;
+    }
+
+    if (result.kind === "itemOpen") {
+      this.openCalendarItem(result.item, result.date);
+      return;
+    }
+
+    if (result.kind === "itemRemove") {
+      this.removeCalendarItem(result.item);
+      return;
+    }
+
+    this.openMeetingDialog(result.item);
   }
 
   async saveDateDialog(event: AvailabilityEventDialogResult) {
@@ -365,7 +437,6 @@ export class AvailabilityPage {
     this.calendarEvents.update((events) =>
       events.filter((_, currentIndex) => currentIndex !== index),
     );
-    this.refreshSelectedDay();
   }
 
   async removeCalendarItem(item: MonthCellItem, event?: Event) {
@@ -503,7 +574,6 @@ export class AvailabilityPage {
         catchError(() => {
           this.slots.set(previousSlots);
           this.calendarEvents.set(previousEvents);
-          this.refreshSelectedDay();
           this.toast.error(
             this.i18n.translate("availability.toast.save_error_title"),
             this.i18n.translate("availability.toast.save_error_message"),
@@ -577,7 +647,6 @@ export class AvailabilityPage {
           ),
       ),
     );
-    this.refreshSelectedDay();
   }
 
   private updateWeeklySlot(
@@ -604,7 +673,6 @@ export class AvailabilityPage {
           this.timeToMinutes(a.startTime) - this.timeToMinutes(b.startTime),
       ),
     );
-    this.refreshSelectedDay();
   }
 
   private async updateCalendarEvent(
@@ -625,7 +693,6 @@ export class AvailabilityPage {
         this.sortCalendarEvents([...current, previous]),
       );
     }
-    this.refreshSelectedDay();
   }
 
   private formatTime(value: string) {
@@ -794,13 +861,4 @@ export class AvailabilityPage {
     return JSON.stringify(first) === JSON.stringify(second);
   }
 
-  private refreshSelectedDay() {
-    const selected = this.selectedDay();
-    if (!selected) return;
-
-    const updated = this.monthCells().find(
-      (cell) => cell.dateKey === selected.dateKey,
-    );
-    this.selectedDay.set(updated ?? null);
-  }
 }

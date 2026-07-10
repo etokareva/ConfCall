@@ -72,29 +72,5 @@
       ></ccs-availability-month-grid>
     </section>
 
-    @if (editorOpen() && editorData(); as editor) {
-    <div class="editor-backdrop" (click)="closeDateDialog()">
-      <div class="editor-shell" (click)="$event.stopPropagation()">
-        <ccs-availability-event-dialog
-          [data]="editor"
-          (cancel)="closeDateDialog()"
-          (save)="saveDateDialog($event)"
-        ></ccs-availability-event-dialog>
-      </div>
-    </div>
-    } @if (dayDetailsOpen() && selectedDay(); as day) {
-    <div class="editor-backdrop" (click)="closeDayDetails()">
-      <aside class="day-details-shell" (click)="$event.stopPropagation()">
-        <ccs-availability-day-details
-          [day]="day"
-          (close)="closeDayDetails()"
-          (addSlot)="openDateDialog($event)"
-          (itemOpen)="openCalendarItem($event.item, $event.date, $event.event)"
-          (itemRemove)="removeCalendarItem($event.item, $event.event)"
-          (meetingOpen)="openMeetingDialog($event.item, $event.event)"
-        ></ccs-availability-day-details>
-      </aside>
-    </div>
-    }
   </div>
 </div>

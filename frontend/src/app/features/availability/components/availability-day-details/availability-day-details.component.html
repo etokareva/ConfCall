@@ -2,7 +2,7 @@
   eyebrow="availability.day_schedule"
   [title]="formatShortDate(day.date)"
   [subtitle]="day.items.length + ' ' + countLabel(day.items.length)"
-  (close)="close.emit()"
+  (close)="handleClose()"
 >
   <div class="day-items">
     @if (day.items.length > 0) { @for (item of day.items; track $index) {

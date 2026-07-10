@@ -159,29 +159,6 @@
   }
 }
 
-.editor-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-dialog);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
-  background: var(--overlay-backdrop);
-}
-
-.editor-shell {
-  width: min(560px, 100%);
-  max-height: min(90vh, 900px);
-  overflow: auto;
-}
-
-.day-details-shell {
-  width: min(640px, 100%);
-  max-height: min(88vh, 860px);
-  overflow: auto;
-}
-
 @media (max-width: 960px) {
   .calendar-nav h2 {
     font-size: var(--font-size-xl);

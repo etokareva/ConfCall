@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { IconComponent } from "../../../../shared/components/icon/icon.component";
 import { ModalShellComponent } from "../../../../shared/components/modal-shell/modal-shell.component";
 import { TooltipDirective } from "../../../../shared/components/tooltip/tooltip.directive";
@@ -9,6 +10,12 @@ import {
   MonthCell,
   MonthCellItem,
 } from "../../models/availability-calendar.model";
+
+export type AvailabilityDayDetailsResult =
+  | { kind: "addSlot"; date: Date }
+  | { kind: "itemOpen"; item: MonthCellItem; date: Date }
+  | { kind: "itemRemove"; item: MonthCellItem }
+  | { kind: "meetingOpen"; item: MonthCellItem };
 
 @Component({
   selector: "ccs-availability-day-details",
@@ -24,7 +31,14 @@ import {
   styleUrl: "./availability-day-details.component.scss",
 })
 export class AvailabilityDayDetailsComponent {
-  @Input({ required: true }) day!: MonthCell;
+  private readonly dialogData = inject<MonthCell | null>(DIALOG_DATA, {
+    optional: true,
+  });
+  private readonly dialogRef = inject<
+    DialogRef<AvailabilityDayDetailsResult | undefined>
+  >(DialogRef, { optional: true });
+
+  @Input({ required: true }) day: MonthCell = this.dialogData as MonthCell;
 
   @Output() readonly close = new EventEmitter<void>();
   @Output() readonly addSlot = new EventEmitter<Date>();
@@ -43,6 +57,11 @@ export class AvailabilityDayDetailsComponent {
   }>();
 
   private readonly i18n = inject(I18nService);
+
+  handleClose() {
+    this.dialogRef?.close();
+    this.close.emit();
+  }
 
   formatShortDate(date: Date) {
     return new Intl.DateTimeFormat(this.localeName(), {
@@ -67,24 +86,28 @@ export class AvailabilityDayDetailsComponent {
   emitAddSlot(event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
+    this.dialogRef?.close({ kind: "addSlot", date: this.day.date });
     this.addSlot.emit(this.day.date);
   }
 
   emitItemOpen(item: MonthCellItem, event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
+    this.dialogRef?.close({ kind: "itemOpen", item, date: this.day.date });
     this.itemOpen.emit({ item, date: this.day.date, event });
   }
 
   emitItemRemove(item: MonthCellItem, event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
+    this.dialogRef?.close({ kind: "itemRemove", item });
     this.itemRemove.emit({ item, event });
   }
 
   emitMeetingOpen(item: MonthCellItem, event?: Event) {
     event?.preventDefault();
     event?.stopPropagation();
+    this.dialogRef?.close({ kind: "meetingOpen", item });
     this.meetingOpen.emit({ item, event });
   }
 
