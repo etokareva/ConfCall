@@ -699,53 +699,9 @@ h2 {
   }
 }
 
-.editor-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-dialog);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
-  background: var(--overlay-backdrop);
-}
-
-.group-dialog-shell,
-.invite-dialog-shell {
-  width: min(100%, 34rem);
-}
-
-.dialog-form,
-.invite-dialog-form {
-  display: contents;
-
-  input {
-    width: 100%;
-    background: var(--color-surface);
-    color: var(--color-text);
-    border: 1px solid var(--color-border-control);
-    border-radius: var(--radius-sm);
-    padding: 0.7rem 0.8rem;
-    font-size: var(--font-size-md);
-
-    &:focus {
-      border-color: var(--color-primary);
-      outline: none;
-      box-shadow: var(--focus-ring);
-    }
-  }
-}
-
 .state-action {
   align-self: flex-start;
   margin-top: var(--space-2);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  width: 100%;
 }
 .promo-list {
   display: grid;

@@ -16,6 +16,7 @@ import {
   tap,
 } from "rxjs/operators";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Dialog } from "@angular/cdk/dialog";
 import { Router } from "@angular/router";
 import { AuthService } from "../../../core/services/auth.service";
 import { I18nService } from "../../../core/i18n/i18n.service";
@@ -33,7 +34,13 @@ import {
 import { ModalService } from "../../../core/services/modal.service";
 import { ToastService } from "../../../core/services/toast.service";
 import { TooltipDirective } from "../../../shared/components/tooltip/tooltip.directive";
-import { ModalShellComponent } from "../../../shared/components/modal-shell/modal-shell.component";
+import { GroupDialogComponent } from "../components/group-dialog/group-dialog.component";
+import {
+  GroupDialogData,
+  GroupDialogResult,
+  GroupInviteDialogResult,
+  GroupProfileDialogResult,
+} from "../models/group-dialog.model";
 
 type GroupPersonRow =
   | {
@@ -62,7 +69,6 @@ type GroupPersonRow =
     TooltipDirective,
     TranslatePipe,
     IconComponent,
-    ModalShellComponent,
   ],
   templateUrl: "./settings.page.html",
   styleUrl: "./settings.page.scss",
@@ -74,28 +80,9 @@ export class SettingsPage {
   modal = inject(ModalService);
   toast = inject(ToastService);
   router = inject(Router);
+  dialog = inject(Dialog);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly groupForm = new FormGroup({
-    name: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    avatar: new FormControl("", { nonNullable: true }),
-  });
-  readonly selectedGroupForm = new FormGroup({
-    name: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    avatar: new FormControl("", { nonNullable: true }),
-  });
-  readonly memberForm = new FormGroup({
-    emails: new FormControl("", {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-  });
   readonly profileForm = new FormGroup({
     name: new FormControl("", { nonNullable: true }),
     avatar: new FormControl("", { nonNullable: true }),
@@ -115,9 +102,6 @@ export class SettingsPage {
   promoCodesError = signal<string | null>(null);
   creatingPromo = signal(false);
   resendingInvitationId = signal<number | null>(null);
-  createGroupDialogOpen = signal(false);
-  editGroupDialogOpen = signal(false);
-  inviteDialogOpen = signal(false);
   readonly groupPeopleRows = computed<GroupPersonRow[]>(() => {
     const group = this.selectedGroup();
     if (!group) return [];
@@ -250,7 +234,6 @@ export class SettingsPage {
   selectGroup(groupId: number) {
     const group = this.groupsList().find((item) => item.id === groupId);
     this.selectedGroupId.set(groupId);
-    this.patchSelectedGroupForm(group ?? null);
     this.loadPromoCodes();
     if (group) {
       this.toast.info(
@@ -281,7 +264,6 @@ export class SettingsPage {
           if (!this.selectedGroupId() && groups.length > 0) {
             this.selectedGroupId.set(groups[0].id);
           }
-          this.patchSelectedGroupForm(this.selectedGroup());
           this.loadPromoCodes();
         }),
         catchError(() => {
@@ -297,17 +279,8 @@ export class SettingsPage {
       .subscribe();
   }
 
-  createGroup() {
-    if (this.groupForm.invalid) {
-      this.groupForm.markAllAsTouched();
-      this.toast.info(
-        this.i18n.translate("settings.toast.group_name_required_title"),
-        this.i18n.translate("settings.toast.group_name_required_message"),
-      );
-      return;
-    }
-
-    const { name, avatar } = this.groupForm.getRawValue();
+  createGroup(result: GroupProfileDialogResult) {
+    const { name, avatar } = result;
     this.creatingGroup.set(true);
     this.groups
       .createGroup({ name, avatar })
@@ -315,9 +288,6 @@ export class SettingsPage {
         tap((group) => {
           this.groupsList.update((groups) => [...groups, group]);
           this.selectedGroupId.set(group.id);
-          this.patchSelectedGroupForm(group);
-          this.groupForm.reset({ name: "", avatar: "" });
-          this.createGroupDialogOpen.set(false);
           this.promoCodes.set([]);
           this.toast.success(
             this.i18n.translate("settings.toast.group_created_title"),
@@ -336,18 +306,13 @@ export class SettingsPage {
       .subscribe();
   }
 
-  saveSelectedGroup() {
+  saveSelectedGroup(result: GroupProfileDialogResult) {
     const groupId = this.selectedGroupId();
     if (!groupId || !this.canManageSelectedGroup()) {
       return;
     }
 
-    if (this.selectedGroupForm.invalid) {
-      this.selectedGroupForm.markAllAsTouched();
-      return;
-    }
-
-    const { name, avatar } = this.selectedGroupForm.getRawValue();
+    const { name, avatar } = result;
     this.savingGroup.set(true);
     this.groups
       .updateGroup(groupId, { name, avatar })
@@ -356,8 +321,6 @@ export class SettingsPage {
           this.groupsList.update((groups) =>
             groups.map((group) => (group.id === updated.id ? updated : group)),
           );
-          this.patchSelectedGroupForm(updated);
-          this.editGroupDialogOpen.set(false);
           this.toast.success(
             this.i18n.translate("groups.profile_saved_title"),
             this.i18n.translate("groups.profile_saved_message"),
@@ -375,10 +338,9 @@ export class SettingsPage {
       .subscribe();
   }
 
-  sendInvitations() {
+  sendInvitations(result: GroupInviteDialogResult) {
     const groupId = this.selectedGroupId();
-    if (!groupId || this.memberForm.invalid) {
-      this.memberForm.markAllAsTouched();
+    if (!groupId) {
       this.toast.info(
         this.i18n.translate("settings.toast.email_check_title"),
         this.i18n.translate("settings.toast.email_check_message"),
@@ -386,7 +348,7 @@ export class SettingsPage {
       return;
     }
 
-    const { emails } = this.memberForm.getRawValue();
+    const { emails } = result;
     const parsedEmails = this.parseEmails(emails);
     if (parsedEmails.length === 0) {
       this.toast.info(
@@ -419,8 +381,6 @@ export class SettingsPage {
                 : result.failedEmails;
 
               this.promoCodes.update((codes) => [...codes, ...invitations]);
-              this.memberForm.reset({ emails: "" });
-              this.inviteDialogOpen.set(false);
               if (failedEmails.length > 0) {
                 this.toast.info(
                   this.i18n.translate("settings.toast.invites_partial_title"),
@@ -458,35 +418,52 @@ export class SettingsPage {
   }
 
   openCreateGroupDialog() {
-    this.groupForm.reset({ name: "", avatar: "" });
-    this.createGroupDialogOpen.set(true);
-  }
-
-  closeCreateGroupDialog() {
-    if (this.creatingGroup()) return;
-    this.createGroupDialogOpen.set(false);
+    this.openGroupDialog({
+      mode: "create",
+    })
+      .pipe(
+        filter(
+          (result): result is GroupProfileDialogResult =>
+            result?.mode === "create",
+        ),
+        tap((result) => this.createGroup(result)),
+      )
+      .subscribe();
   }
 
   openEditGroupDialog() {
     const group = this.selectedGroup();
     if (!group || !this.canManageSelectedGroup()) return;
-    this.patchSelectedGroupForm(group);
-    this.editGroupDialogOpen.set(true);
-  }
-
-  closeEditGroupDialog() {
-    if (this.savingGroup()) return;
-    this.editGroupDialogOpen.set(false);
+    this.openGroupDialog({
+      mode: "edit",
+      groupName: group.name,
+      avatar: group.avatar,
+    })
+      .pipe(
+        filter(
+          (result): result is GroupProfileDialogResult =>
+            result?.mode === "edit",
+        ),
+        tap((result) => this.saveSelectedGroup(result)),
+      )
+      .subscribe();
   }
 
   openInviteDialog() {
-    this.memberForm.reset({ emails: "" });
-    this.inviteDialogOpen.set(true);
-  }
-
-  closeInviteDialog() {
-    if (this.addingMember()) return;
-    this.inviteDialogOpen.set(false);
+    const group = this.selectedGroup();
+    if (!group || !this.canManageSelectedGroup()) return;
+    this.openGroupDialog({
+      mode: "invite",
+      groupName: group.name,
+    })
+      .pipe(
+        filter(
+          (result): result is GroupInviteDialogResult =>
+            result?.mode === "invite",
+        ),
+        tap((result) => this.sendInvitations(result)),
+      )
+      .subscribe();
   }
 
   resendInvitation(groupId: number, invitation: Pick<GroupInvitation, "id">) {
@@ -634,13 +611,24 @@ export class SettingsPage {
     }
   }
 
-  private patchSelectedGroupForm(group: UserGroup | null) {
-    this.selectedGroupForm.patchValue(
-      {
-        name: group?.name ?? "",
-        avatar: group?.avatar ?? "",
-      },
-      { emitEvent: false },
-    );
+  private openGroupDialog(data: GroupDialogData) {
+    const ref = this.dialog.open<
+      GroupDialogResult | undefined,
+      GroupDialogData,
+      GroupDialogComponent
+    >(GroupDialogComponent, {
+      data,
+      hasBackdrop: true,
+      ariaModal: true,
+      autoFocus: "first-tabbable",
+      restoreFocus: true,
+      disableClose: false,
+      width: "min(34rem, calc(100vw - 2rem))",
+      maxWidth: "calc(100vw - 2rem)",
+      backdropClass: "app-dialog-backdrop",
+      panelClass: "ccs-dialog-panel",
+    });
+
+    return ref.closed;
   }
 }

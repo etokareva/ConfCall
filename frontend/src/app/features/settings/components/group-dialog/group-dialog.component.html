@@ -1,0 +1,64 @@
+<form class="group-dialog-form" (ngSubmit)="submit()">
+  <ccs-modal-shell
+    [eyebrow]="isInvite() ? 'groups.invitations' : 'nav.groups'"
+    [title]="titleKey()"
+    [subtitle]="
+      data.mode === 'create'
+        ? ('groups.create_group_subtitle' | t)
+        : (data.groupName ?? '')
+    "
+    (close)="close()"
+  >
+    @if (isInvite()) {
+      <div class="dialog-fields" [formGroup]="inviteForm">
+        <div class="field-group">
+          <label for="group-member-emails">
+            {{ "groups.invite_emails" | t }}
+          </label>
+          <input
+            id="group-member-emails"
+            name="group-member-emails"
+            type="text"
+            formControlName="emails"
+            [placeholder]="'groups.invite_emails_placeholder' | t"
+            [ccsTooltip]="'groups.invite_emails_tooltip' | t"
+          />
+        </div>
+      </div>
+    } @else {
+      <div class="dialog-fields" [formGroup]="groupForm">
+        <div class="field-group">
+          <label for="group-name">{{ "groups.name_placeholder" | t }}</label>
+          <input
+            id="group-name"
+            name="group-name"
+            type="text"
+            formControlName="name"
+            [placeholder]="'groups.name_placeholder' | t"
+            [ccsTooltip]="'groups.name_tooltip' | t"
+          />
+        </div>
+        <div class="field-group">
+          <label for="group-avatar">{{ "groups.avatar_url" | t }}</label>
+          <input
+            id="group-avatar"
+            name="group-avatar"
+            type="url"
+            formControlName="avatar"
+            [placeholder]="'groups.avatar_placeholder' | t"
+            [ccsTooltip]="'groups.avatar_tooltip' | t"
+          />
+        </div>
+      </div>
+    }
+
+    <div modalFooter class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="close()">
+        {{ "common.cancel" | t }}
+      </button>
+      <button class="btn-primary" type="submit">
+        {{ submitLabelKey() | t }}
+      </button>
+    </div>
+  </ccs-modal-shell>
+</form>
