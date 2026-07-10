@@ -11,7 +11,7 @@
 - Новые общие controls добавлять в `frontend/src/app/shared/components/`.
 - Селектор компонента должен начинаться с `ccs-`.
 - Если один и тот же UI-паттерн нужен в двух местах, выносить его в shared до третьей копии.
-- Для модальных окон использовать `ccs-modal-shell`; не создавать локальные `.dialog-header`, `.dialog-close`, shell-card и shadow-стили.
+- Для модальных окон использовать Angular CDK Dialog + `ccs-modal-shell`; не создавать локальные fixed-backdrop, `@if`-модалки, `.dialog-header`, `.dialog-close`, shell-card и shadow-стили.
 - Для дат использовать `ccs-date-input`, если нужен стилизованный календарь в стиле приложения.
 - Для выбора времени использовать `ccs-time-select`, а не нативный `input[type="time"]`, если важны единый стиль и контролируемая выпадашка.
 - Для небольших overlay/listbox меню использовать нативный scroll + CSS `scrollbar-color`/`scrollbar-width`/`::-webkit-scrollbar`. Отдельную scrollbar-библиотеку подключать только если появится сложный scroll-container с виртуализацией, синхронизацией скролла или кроссбраузерными требованиями, которые нельзя закрыть CSS.
@@ -41,6 +41,7 @@
 | `ccs-availability-event-dialog` | `features/availability/components/availability-event-dialog/` | Создание/редактирование слота доступности                                                                            | Feature-specific, использует shared form controls |
 | `ccs-availability-month-grid`   | `features/availability/components/availability-month-grid/`   | Month-view сетка календаря доступности: дни, chip слотов, маркер встреч, keyboard focus                              | Feature-specific, можно расширять внутри availability |
 | `ccs-availability-day-details`  | `features/availability/components/availability-day-details/`  | Содержимое модального окна расписания дня: список слотов/встреч, edit/delete actions, empty state                    | Feature-specific, использует `ccs-modal-shell`    |
+| `ccs-group-dialog`              | `features/settings/components/group-dialog/`                  | CDK Dialog для создания/редактирования группы и отправки приглашений                                                 | Feature-specific, использует `ccs-modal-shell`    |
 | `ccs-meeting-details-dialog`    | `features/availability/components/meeting-details-dialog/`    | Просмотр деталей встречи из календаря доступности                                                                    | Можно переиспользовать на странице встреч         |
 
 ## Потенциальные Выносы

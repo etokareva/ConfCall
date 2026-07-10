@@ -304,10 +304,14 @@ app/
 
 ### 7. Модальные окна
 
-В приложении используется `ModalService`, общий `ModalComponent` и `ccs-modal-shell`.
+В приложении используется Angular CDK Dialog, `ModalService`, общий `ModalComponent` и `ccs-modal-shell`.
 
 - `ModalService` — только для простых сценариев `info`, `error`, `confirm`, `choose`.
 - `ccs-modal-shell` — обязательный каркас для всех содержательных модальных окон: бронирование, детали встречи, настройка слота, расписание дня.
+- `ccs-modal-shell` централизованно задаёт `role="dialog"`, `aria-modal="true"`, связь с заголовком и focus trap. Не дублировать эти правила локально в feature-компонентах.
+- Все модальные окна должны открываться через CDK Dialog. Не добавлять локальные fixed-backdrop или `@if`-модалки внутри страницы.
+- При открытии модального окна фокус должен переходить внутрь окна; после закрытия возвращаться к элементу, который его открыл.
+- В открытой модалке `Tab`/`Shift+Tab` остаются внутри окна, `Escape` закрывает окно только если это безопасно для данных пользователя.
 - Feature-компонент может владеть формой и бизнес-логикой, но не должен дублировать shell-card, header, close button, footer и shadow-стили.
 - Native `alert`/`confirm` не используются.
 - При `NavigationStart` корневой `AppComponent` закрывает все CDK Dialog окна через `Dialog.closeAll()` и очищает тосты через `ToastService.clear()`. Новые transient overlay-компоненты должны идти через CDK Dialog/`ModalService` или `ToastService`, чтобы автоматически исчезать при переходе на другой маршрут.
@@ -325,6 +329,15 @@ Tooltip реализован через `TooltipDirective` и `TooltipComponent`
 ```
 
 Не использовать native `title` и локальные CSS-tooltip через `content: attr(...)`, если подсказка должна быть частью UI.
+Tooltip не должен забирать фокус: фокус остаётся на trigger-элементе, подсказка только появляется и скрывается по hover/focus/Escape/focusout.
+
+### 7.3 Accessibility keyboard rules
+
+- Keyboard navigation: все интерактивные элементы должны быть достижимы через `Tab`, `Shift+Tab` и, для сложных виджетов, через стрелки.
+- Keyboard traps: не создавать элементов, которые удерживают фокус и не дают уйти дальше. Исключение — открытое модальное окно с ожидаемым focus trap до закрытия.
+- Focus indicator: каждый интерактивный элемент обязан иметь видимый `:focus-visible`.
+- Tab order: порядок фокуса должен совпадать с визуальной и смысловой логикой; положительный `tabindex` не использовать.
+- Input focus: фокус не должен перемещаться неожиданно без действия пользователя. Допустимые переносы — открытие модалки/overlay пользователем и route focus на `main#main-content`.
 
 ### 8. SPA Fallback — deploy/\*.html
 
