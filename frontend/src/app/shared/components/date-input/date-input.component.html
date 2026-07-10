@@ -1,4 +1,4 @@
-<div class="date-input">
+<div #positionAnchor class="date-input">
   <input
     #input
     type="text"
@@ -9,8 +9,8 @@
     [attr.aria-label]="label | t"
     [attr.aria-describedby]="describedBy || null"
     aria-haspopup="dialog"
-    [attr.aria-expanded]="isOpen()"
     (input)="onInput($event)"
+    (keydown)="onInputKeydown($event)"
     (click)="openPickerFromInput()"
     (focus)="openPickerFromInput()"
     (blur)="markTouched()"
@@ -23,6 +23,7 @@
     aria-haspopup="dialog"
     [attr.aria-expanded]="isOpen()"
     (mousedown)="openPicker($event)"
+    (click)="openPicker($event)"
   >
     <svg-icon name="calendar"></svg-icon>
   </button>
