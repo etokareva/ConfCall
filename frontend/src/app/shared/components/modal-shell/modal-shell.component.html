@@ -1,10 +1,18 @@
-<section class="modal-shell">
+<section
+  class="modal-shell"
+  role="dialog"
+  aria-modal="true"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  [attr.aria-labelledby]="titleId"
+  [attr.aria-describedby]="describedBy || null"
+>
   <header class="modal-shell-header">
     <div class="modal-shell-title">
       @if (eyebrow) {
         <p class="modal-shell-eyebrow">{{ eyebrow | t }}</p>
       }
-      <h2 [id]="titleId || null">{{ title | t }}</h2>
+      <h2 [id]="titleId">{{ title | t }}</h2>
       @if (subtitle) {
         <p class="modal-shell-subtitle">{{ subtitle }}</p>
       }

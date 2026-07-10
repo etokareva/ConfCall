@@ -1,16 +1,11 @@
 <div
   class="modal-dialog"
-  role="dialog"
-  aria-modal="true"
-  cdkTrapFocus
-  [cdkTrapFocusAutoCapture]="true"
-  [attr.aria-labelledby]="'modal-title'"
-  [attr.aria-describedby]="'modal-message'"
   [class.error]="data.kind === 'error'"
 >
   <ccs-modal-shell
     [title]="data.title"
     titleId="modal-title"
+    describedBy="modal-message"
     [showClose]="false"
     (close)="close(false)"
   >
